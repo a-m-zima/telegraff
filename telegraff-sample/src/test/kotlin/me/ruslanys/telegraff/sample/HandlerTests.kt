@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit4.SpringRunner
 
 @RunWith(SpringRunner::class)
-@ContextConfiguration(classes = [ HandlerTests.Config::class ])
+@ContextConfiguration(classes = [HandlerTests.Config::class])
 abstract class HandlerTests(private val handlerCommand: String) {
 
     @Autowired
@@ -28,10 +28,10 @@ abstract class HandlerTests(private val handlerCommand: String) {
     }
 
     protected open fun getTelegramChat(): TelegramChat =
-            TelegramChat(-1L, "PRIVATE", null, "bot", "First name", "Last name")
+        TelegramChat(-1L, "PRIVATE", null, "bot", "First name", "Last name")
 
     @Suppress("UNCHECKED_CAST")
-    protected fun <T: Any> getStep(key: String): Step<T> {
+    protected fun <T : Any> getStep(key: String): Step<T> {
         return (handler.getStepByKey(key) as Step<T>?)!!
     }
 

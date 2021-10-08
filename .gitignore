@@ -4,6 +4,7 @@ out/
 *.iml
 *.log
 .gradle
+*.jar
 
 ### Maven template
 target/

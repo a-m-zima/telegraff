@@ -44,16 +44,22 @@ class TaxiHandlerTests : HandlerTests("/taxi") {
     fun processTest() {
         val paymentMethod = getStep<Any>("paymentMethod").validation("картой")
 
-        val response = handler.process(state, mapOf(
+        val response = handler.process(
+            state, mapOf(
                 "locationFrom" to "Дом",
                 "locationTo" to "Работа",
                 "paymentMethod" to paymentMethod
-        ))
+            )
+        )
 
-        assertThat(response).isEqualTo(MarkdownMessage("""
+        assertThat(response).isEqualTo(
+            MarkdownMessage(
+                """
             Заказ принят от пользователя #-1. 
             Поедем из Дом в Работа. Оплата CARD.
-        """.trimIndent()))
+        """.trimIndent()
+            )
+        )
     }
 
 }

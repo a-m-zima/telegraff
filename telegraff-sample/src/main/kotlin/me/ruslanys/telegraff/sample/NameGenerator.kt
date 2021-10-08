@@ -2,6 +2,7 @@ package me.ruslanys.telegraff.sample
 
 import org.springframework.stereotype.Component
 import java.util.*
+import kotlin.math.abs
 
 @Component
 class NameGenerator {
@@ -11,8 +12,8 @@ class NameGenerator {
     fun generateName(length: Int): String {
         val name = StringBuilder()
         for (i in 0 until length) {
-            val index = Math.abs(random.nextInt() % DICTIONARY.size)
-            val char = if (name.isEmpty()) DICTIONARY[index].toUpperCase() else DICTIONARY[index]
+            val index = abs(random.nextInt() % DICTIONARY.size)
+            val char = if (name.isEmpty()) DICTIONARY[index].uppercase() else DICTIONARY[index]
             name.append(char)
         }
         return name.toString()
