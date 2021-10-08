@@ -9,7 +9,7 @@ import me.ruslanys.telegraff.core.dto.request.MarkdownMessage
 class CancelFilter(private val telegramApi: TelegramApi, private val handlersFilter: HandlersFilter): TelegramFilter {
 
     override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
-        val text = message.text?.toLowerCase() ?: ""
+        val text = message.text?.lowercase() ?: ""
         if (text.startsWith("/cancel") || text.startsWith("отмена")) {
             handlersFilter.clearState(message.chat)
             telegramApi.sendMessage(MarkdownMessage("Хорошо, давай начнем сначала", chatId = message.chat.id))

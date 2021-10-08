@@ -8,7 +8,7 @@ import org.junit.runner.RunWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.rule.OutputCapture
+import org.springframework.boot.test.system.OutputCaptureRule
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -24,21 +24,26 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 @WebMvcTest(TelegramWebhookClient::class)
 class TelegramWebhookClientTests {
 
-    @get:Rule val capture = OutputCapture()
+    @get:Rule
+    val capture = OutputCaptureRule()
 
-    @Autowired private lateinit var mvc: MockMvc
+    @Autowired
+    private lateinit var mvc: MockMvc
 
-    @MockBean private lateinit var telegramApi: TelegramApi
+    @MockBean
+    private lateinit var telegramApi: TelegramApi
 
 
     @Test
     fun `Update with valid token`() {
-        mvc.perform(post("/telegram")
+        mvc.perform(
+            post("/telegram")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(getUpdateJson()))
+                .content(getUpdateJson())
+        )
 
-                .andExpect(status().isOk)
-                .andExpect(content().string("ok"))
+            .andExpect(status().isOk)
+            .andExpect(content().string("ok"))
 
 
         // https://github.com/spring-projects/spring-boot/issues/6060
@@ -76,13 +81,16 @@ class TelegramWebhookClientTests {
 
 
     @Configuration
-    class Config {
+    open class Config {
 
         @Bean(name = ["telegramProperties"])
-        fun telegramProperties() = Properties()
+        open fun telegramProperties() = Properties()
 
         @Bean
-        fun telegramWebhookClient(telegramApi: TelegramApi, publisher: ApplicationEventPublisher): TelegramWebhookClient {
+        open fun telegramWebhookClient(
+            telegramApi: TelegramApi,
+            publisher: ApplicationEventPublisher
+        ): TelegramWebhookClient {
             return TelegramWebhookClient(telegramApi, publisher, "http://localhost/telegram")
         }
 

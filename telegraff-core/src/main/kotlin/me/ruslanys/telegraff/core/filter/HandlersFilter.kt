@@ -107,7 +107,7 @@ class HandlersFilter(private val telegramApi: TelegramApi, handlersFactory: Hand
             return state.handler
         }
 
-        val text = message.text?.toLowerCase() ?: return null
+        val text = message.text?.lowercase() ?: return null
         for (entry in handlers) {
             if (text.startsWith(entry.key)) {
                 return entry.value

@@ -25,7 +25,7 @@ handler("/taxi", "такси") {
         }
 
         validation {
-            when (it.toLowerCase()) {
+            when (it.lowercase()) {
                 "картой" -> PaymentMethod.CARD
                 "наличкой" -> PaymentMethod.CASH
                 else -> throw ValidationException("Пожалуйста, выбери один из вариантов")

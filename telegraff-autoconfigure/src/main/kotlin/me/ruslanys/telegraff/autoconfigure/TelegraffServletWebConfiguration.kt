@@ -31,31 +31,37 @@ import org.springframework.context.support.GenericApplicationContext
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @ConditionalOnClass(TelegramPollingClient::class, TelegramWebhookClient::class)
 @AutoConfigureAfter(WebMvcAutoConfiguration::class, RestTemplateAutoConfiguration::class)
-class TelegraffServletWebConfiguration(val telegramProperties: TelegramProperties) {
+open class TelegraffServletWebConfiguration(val telegramProperties: TelegramProperties) {
 
     @Bean
     @ConditionalOnMissingBean(TelegramApi::class)
-    fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
+    open fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
         return DefaultTelegramApi(telegramProperties.accessKey, restTemplateBuilder)
     }
 
     @Bean
     @ConditionalOnMissingBean(name = ["telegramProperties"])
-    fun telegramProperties(): TelegramProperties = telegramProperties
+    open fun telegramProperties(): TelegramProperties = telegramProperties
 
     // region Clients
 
     @Bean
     @ConditionalOnMissingBean(TelegramClient::class)
     @ConditionalOnProperty(name = ["telegram.mode"], havingValue = "polling", matchIfMissing = true)
-    fun telegramPollingClient(telegramApi: TelegramApi, publisher: ApplicationEventPublisher): TelegramPollingClient {
+    open fun telegramPollingClient(
+        telegramApi: TelegramApi,
+        publisher: ApplicationEventPublisher
+    ): TelegramPollingClient {
         return TelegramPollingClient(telegramApi, publisher)
     }
 
     @Bean
     @ConditionalOnMissingBean(TelegramClient::class)
     @ConditionalOnProperty(name = ["telegram.mode"], havingValue = "webhook")
-    fun telegramWebhookClient(telegramApi: TelegramApi, publisher: ApplicationEventPublisher): TelegramWebhookClient {
+    open fun telegramWebhookClient(
+        telegramApi: TelegramApi,
+        publisher: ApplicationEventPublisher
+    ): TelegramWebhookClient {
         // TODO: Reconfigure with one of the following approaches
         /*
         @Bean(name = ["/ruslanys"])
@@ -77,7 +83,7 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
 
     @Bean
     @ConditionalOnMissingBean(HandlersFactory::class)
-    fun handlersFactory(context: GenericApplicationContext): DefaultHandlersFactory {
+    open fun handlersFactory(context: GenericApplicationContext): DefaultHandlersFactory {
         return DefaultHandlersFactory(context, telegramProperties.handlersPath)
     }
 
@@ -85,26 +91,26 @@ class TelegraffServletWebConfiguration(val telegramProperties: TelegramPropertie
 
     @Bean
     @ConditionalOnMissingBean(TelegramFiltersFactory::class, TelegramFilterProcessor::class)
-    fun telegramFiltersFactory(filters: List<TelegramFilter>): DefaultTelegramFiltersFactory {
+    open fun telegramFiltersFactory(filters: List<TelegramFilter>): DefaultTelegramFiltersFactory {
         return DefaultTelegramFiltersFactory(filters)
     }
 
     @Bean
     @ConditionalOnMissingBean(HandlersFilter::class)
-    fun handlersFilter(telegramApi: TelegramApi, handlersFactory: HandlersFactory): HandlersFilter {
+    open fun handlersFilter(telegramApi: TelegramApi, handlersFactory: HandlersFactory): HandlersFilter {
         return HandlersFilter(telegramApi, handlersFactory)
     }
 
     @Bean
     @ConditionalOnMissingBean(CancelFilter::class)
-    fun cancelFilter(telegramApi: TelegramApi, handlersFilter: HandlersFilter): CancelFilter {
+    open fun cancelFilter(telegramApi: TelegramApi, handlersFilter: HandlersFilter): CancelFilter {
         return CancelFilter(telegramApi, handlersFilter)
     }
 
     @Bean
     @ConditionalOnMissingBean(UnresolvedMessageFilter::class)
     @ConditionalOnProperty(name = ["telegram.unresolved-filter.enabled"], matchIfMissing = true)
-    fun unresolvedMessageFilter(telegramApi: TelegramApi): UnresolvedMessageFilter {
+    open fun unresolvedMessageFilter(telegramApi: TelegramApi): UnresolvedMessageFilter {
         return UnresolvedMessageFilter(telegramApi)
     }
 

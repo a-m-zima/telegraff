@@ -34,8 +34,8 @@ class DefaultTelegramApiTests {
     @Test
     fun getMeTest() {
         server.expect(requestTo("/getMe"))
-                .andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_getMe.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.GET))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_getMe.json"), MediaType.APPLICATION_JSON))
 
         val response = api.getMe()
 
@@ -48,8 +48,8 @@ class DefaultTelegramApiTests {
     @Test
     fun getUpdatesTest() {
         server.expect(requestTo("/getUpdates"))
-                .andExpect(method(HttpMethod.POST))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_getUpdates.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.POST))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_getUpdates.json"), MediaType.APPLICATION_JSON))
 
         val response = api.getUpdates()
 
@@ -61,9 +61,9 @@ class DefaultTelegramApiTests {
     @Test
     fun setWebhookTest() {
         server.expect(requestTo("/setWebhook"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("{\"url\": \"https://ruslanys.me/webhook\"}"))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_setWebhook.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().json("{\"url\": \"https://ruslanys.me/webhook\"}"))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_setWebhook.json"), MediaType.APPLICATION_JSON))
 
         val response = api.setWebhook("https://ruslanys.me/webhook")
 
@@ -73,9 +73,9 @@ class DefaultTelegramApiTests {
     @Test
     fun removeWebhookTest() {
         server.expect(requestTo("/setWebhook"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("{\"url\": \"\"}"))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_removeWebhook.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().json("{\"url\": \"\"}"))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_removeWebhook.json"), MediaType.APPLICATION_JSON))
 
         val response = api.removeWebhook()
 
@@ -85,8 +85,10 @@ class DefaultTelegramApiTests {
     @Test
     fun sendMessageTest() {
         server.expect(requestTo("/sendMessage"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("""
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(
+                content().json(
+                    """
                     {
                       "chat_id": $CHAT_ID,
                       "text": "Привет, *Руслан*!",
@@ -98,8 +100,10 @@ class DefaultTelegramApiTests {
                         "selective": false
                       }
                     }
-                """.trimIndent(), true))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_sendMessage.json"), MediaType.APPLICATION_JSON))
+                """.trimIndent(), true
+                )
+            )
+            .andRespond(withSuccess(getClassPathResource("telegramApi_sendMessage.json"), MediaType.APPLICATION_JSON))
 
 
         val request = TelegramMessageSendRequest(CHAT_ID, "Привет, *Руслан*!", TelegramParseMode.MARKDOWN)
@@ -112,8 +116,10 @@ class DefaultTelegramApiTests {
     @Test
     fun sendMessageWithAnswersTest() {
         server.expect(requestTo("/sendMessage"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().json("""
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(
+                content().json(
+                    """
                     {
                       "chat_id": $CHAT_ID,
                       "text": "Как дела, <i>Руслан</i>?",
@@ -130,14 +136,21 @@ class DefaultTelegramApiTests {
                         "selective": false
                       }
                     }
-                """.trimIndent(), true))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_sendMessageWithAnswers.json"), MediaType.APPLICATION_JSON))
+                """.trimIndent(), true
+                )
+            )
+            .andRespond(
+                withSuccess(
+                    getClassPathResource("telegramApi_sendMessageWithAnswers.json"),
+                    MediaType.APPLICATION_JSON
+                )
+            )
 
         val request = TelegramMessageSendRequest(
-                CHAT_ID,
-                "Как дела, <i>Руслан</i>?",
-                TelegramParseMode.HTML,
-                TelegramMarkupReplyKeyboard(listOf("Хорошо", "Пойдет"))
+            CHAT_ID,
+            "Как дела, <i>Руслан</i>?",
+            TelegramParseMode.HTML,
+            TelegramMarkupReplyKeyboard(listOf("Хорошо", "Пойдет"))
         )
         val response = api.sendMessage(request)
 
@@ -148,15 +161,15 @@ class DefaultTelegramApiTests {
     @Test
     fun sendPhotoTest() {
         server.expect(requestTo("/sendPhoto"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_sendPhoto.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_sendPhoto.json"), MediaType.APPLICATION_JSON))
 
         val request = TelegramPhotoSendRequest(
-                CHAT_ID,
-                getClassPathResource("telegramApi_photo.png").inputStream.readBytes(),
-                "*Тестовая* картинка",
-                TelegramParseMode.MARKDOWN
+            CHAT_ID,
+            getClassPathResource("telegramApi_photo.png").inputStream.readBytes(),
+            "*Тестовая* картинка",
+            TelegramParseMode.MARKDOWN
         )
         val response = api.sendPhoto(request)
 
@@ -166,13 +179,13 @@ class DefaultTelegramApiTests {
     @Test
     fun sendVoiceTest() {
         server.expect(requestTo("/sendVoice"))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
-                .andRespond(withSuccess(getClassPathResource("telegramApi_sendVoice.json"), MediaType.APPLICATION_JSON))
+            .andExpect(method(HttpMethod.POST))
+            .andExpect(content().contentTypeCompatibleWith(MediaType.MULTIPART_FORM_DATA))
+            .andRespond(withSuccess(getClassPathResource("telegramApi_sendVoice.json"), MediaType.APPLICATION_JSON))
 
         val request = TelegramVoiceSendRequest(
-                CHAT_ID,
-                getClassPathResource("telegramApi_voice.mp3").inputStream.readBytes()
+            CHAT_ID,
+            getClassPathResource("telegramApi_voice.mp3").inputStream.readBytes()
         )
         val response = api.sendVoice(request)
 
@@ -188,13 +201,11 @@ class DefaultTelegramApiTests {
     }
 
     @Configuration
-    class Config {
+    open class Config {
 
         @Bean
-        fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
+        open fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
             return DefaultTelegramApi("key", restTemplateBuilder)
         }
-
     }
-
 }

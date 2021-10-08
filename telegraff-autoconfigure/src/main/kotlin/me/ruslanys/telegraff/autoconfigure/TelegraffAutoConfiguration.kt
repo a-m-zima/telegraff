@@ -21,7 +21,7 @@ import org.springframework.validation.Validator
 @ConditionalOnClass(TelegramPollingClient::class, TelegramWebhookClient::class, TelegramApi::class)
 @EnableConfigurationProperties(TelegramProperties::class)
 @Import(TelegraffNonWebConfiguration::class, TelegraffServletWebConfiguration::class)
-class TelegraffAutoConfiguration {
+open class TelegraffAutoConfiguration {
 
     companion object {
         @Bean
@@ -29,5 +29,4 @@ class TelegraffAutoConfiguration {
             return TelegramPropertiesValidator()
         }
     }
-
 }
