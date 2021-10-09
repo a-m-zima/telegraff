@@ -28,7 +28,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.validation.Validator
 
-class TelegramPropertiesTests {
+class TelegramPropertiesTest {
 
     @get:Rule
     val thrown = ExpectedException.none()!!
@@ -44,8 +44,9 @@ class TelegramPropertiesTests {
     fun bindValidPropertiesTest() {
         this.context.register(Config::class.java)
         TestPropertyValues.of(
-                "telegram.accessKey:key", "telegram.mode:webhook", "telegram.webhookBaseUrl:https://localhost")
-                .applyTo(this.context)
+            "telegram.accessKey:key", "telegram.mode:webhook", "telegram.webhookBaseUrl:https://localhost"
+        )
+            .applyTo(this.context)
 
         this.context.refresh()
 
@@ -60,8 +61,9 @@ class TelegramPropertiesTests {
     fun bindEmptyKey() {
         this.context.register(Config::class.java)
         TestPropertyValues.of(
-                "telegram.accessKey:", "telegram.mode:webhook", "telegram.webhookBaseUrl:https://localhost")
-                .applyTo(this.context)
+            "telegram.accessKey:", "telegram.mode:webhook", "telegram.webhookBaseUrl:https://localhost"
+        )
+            .applyTo(this.context)
         this.thrown.expect(ConfigurationPropertiesBindException::class.java)
 
         this.context.refresh()
@@ -71,8 +73,9 @@ class TelegramPropertiesTests {
     fun bindInvalidMode() {
         this.context.register(Config::class.java)
         TestPropertyValues.of(
-                "telegram.accessKey:key", "telegram.mode:ASD", "telegram.webhookBaseUrl:https://localhost")
-                .applyTo(this.context)
+            "telegram.accessKey:key", "telegram.mode:ASD", "telegram.webhookBaseUrl:https://localhost"
+        )
+            .applyTo(this.context)
         this.thrown.expect(ConfigurationPropertiesBindException::class.java)
 
         this.context.refresh()
@@ -82,8 +85,9 @@ class TelegramPropertiesTests {
     fun bindWebhookWithoutBaseUrl() {
         this.context.register(Config::class.java)
         TestPropertyValues.of(
-                "telegram.accessKey:key", "telegram.mode:webhook")
-                .applyTo(this.context)
+            "telegram.accessKey:key", "telegram.mode:webhook"
+        )
+            .applyTo(this.context)
         this.thrown.expect(ConfigurationPropertiesBindException::class.java)
 
         this.context.refresh()
@@ -93,8 +97,9 @@ class TelegramPropertiesTests {
     fun bindWebhookBaseUrlWithHttp() {
         this.context.register(Config::class.java)
         TestPropertyValues.of(
-                "telegram.accessKey:key", "telegram.mode:webhook", "telegram.webhookBaseUrl:http://localhost")
-                .applyTo(this.context)
+            "telegram.accessKey:key", "telegram.mode:webhook", "telegram.webhookBaseUrl:http://localhost"
+        )
+            .applyTo(this.context)
 
         this.thrown.expect(ConfigurationPropertiesBindException::class.java)
 
@@ -102,10 +107,9 @@ class TelegramPropertiesTests {
     }
 
 
-
     @Configuration
     @EnableConfigurationProperties(TelegramProperties::class)
-    class Config {
+    open class Config {
         companion object {
             @JvmStatic
             @Bean

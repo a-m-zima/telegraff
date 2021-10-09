@@ -38,7 +38,7 @@ import org.springframework.test.web.client.response.MockRestResponseCreators.wit
 
 @RunWith(SpringRunner::class)
 @RestClientTest(DefaultTelegramApi::class)
-class DefaultTelegramApiTests {
+class DefaultTelegramApiIT {
 
     @Autowired
     private lateinit var api: DefaultTelegramApi
