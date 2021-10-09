@@ -42,6 +42,12 @@ Maven:
 ./mvnw clean install -DskipTests=false
 ```
 
+### Генерация LICENSES_THIRD_PARTY
+
+```shell
+./mvnw clean verify -Dthird.party.licenses=true
+```
+
 ### Релиз
 
 ```shell
