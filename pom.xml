@@ -5,18 +5,103 @@
     <modelVersion>4.0.0</modelVersion>
     <packaging>pom</packaging>
 
+    <modules>
+        <module>telegraff-core</module>
+        <module>telegraff-autoconfigure</module>
+        <module>telegraff-starter</module>
+    </modules>
+
     <groupId>com.github.xzima</groupId>
     <artifactId>telegraff</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Telegraff</name>
     <description>
         Kotlin DSL for developing Telegram bot forms
     </description>
+
     <url>https://github.com/xzima/telegraff</url>
     <inceptionYear>2018</inceptionYear>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Alex Zima</name>
+            <email>xzima@ro.ru</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Ruslan Molchanov</name>
+            <email>me@ruslanys.me</email>
+            <url>https://ruslanys.me</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+        </contributor>
+    </contributors>
+
+    <scm>
+        <connection>scm:git:git@github.com:xzima/telegraff.git</connection>
+        <developerConnection>scm:git:git@github.com:xzima/telegraff.git</developerConnection>
+        <url>git@github.com:xzima/telegraff.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo1.maven.org/maven2/</url>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <name>JitPack</name>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <properties>
+        <java.version>11</java.version>
+        <maven.version>3.6.3</maven.version>
+        <encoding>UTF-8</encoding>
+        <!--==========================================-->
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
+        <!-- kotlin -->
+        <kotlin.version>1.5.31</kotlin.version>
+        <kotlin.code.style>official</kotlin.code.style>
+        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
+        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <!-- test -->
+        <plugin.test.version>2.22.2</plugin.test.version>
+        <skipTests>true</skipTests>
+        <testJavaOpts>-Xmx1024m</testJavaOpts>
+        <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
+             maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
+        <argLine>${testJavaOpts} ${jacocoArgLine}</argLine>
+        <!-- Detailed logs in surefire-reports/testName-output.txt instead of stdout -->
+        <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
+        <!-- Ensure full stacktrace is logged (when errors occur) -->
+        <trimStackTrace>false</trimStackTrace>
+        <!-- jacoco -->
+        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
+        <jacoco.propertyName>jacocoArgLine</jacoco.propertyName>
+        <!--==========================================-->
         <!-- DEPENDENCIES -->
         <spring.version>5.2.5.RELEASE</spring.version>
         <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
@@ -25,327 +110,188 @@
         <hibernate-validator.version>6.0.18.Final</hibernate-validator.version>
         <postgresql.driver.version>42.2.24</postgresql.driver.version>
         <solr.client.version>8.8.1</solr.client.version>
-
-        <!-- MAVEN SETTINGS -->
-        <java.version>11</java.version>
-        <encoding>UTF-8</encoding>
-        <path.source>src/main/kotlin</path.source>
-        <path.test>src/test/kotlin</path.test>
-        <maven.version>3.6.3</maven.version>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
-        <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>${encoding}</project.reporting.outputEncoding>
-        <kotlin.code.style>official</kotlin.code.style>
-        <kotlin.version>1.5.31</kotlin.version>
-        <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-        <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
-        <!-- TEST SETTINGS -->
-        <!-- By default skip running all tests.
-             NOTE: Tests are always built, because we have modules that depend on common test infrastructure.
-             * Run all tests : 'mvn install -DskipUnitTests=false -DskipIntegrationTests=false'
-             * Run unit tests ONLY: 'mvn install -DskipUnitTests=false'
-             * Run integration tests ONLY: `mvn install -DskipIntegrationTests=false'
-        -->
-        <skipUnitTests>true</skipUnitTests>
-        <skipIntegrationTests>true</skipIntegrationTests>
-        <!-- 'root.basedir' is the path to the root [src] dir. It must be redefined by each child POM,
-              as it is used to reference the LICENSE_HEADER and *.properties file(s) in that directory. -->
-        <root.basedir>${basedir}</root.basedir>
+        <!--================================================-->
+        <plugin.site.version>3.9.1</plugin.site.version>
+        <plugin.resources.version>3.2.0</plugin.resources.version>
+        <plugin.dependency.version>3.2.0</plugin.dependency.version>
+        <plugin.install.version>2.5.2</plugin.install.version>
+        <plugin.deploy.version>2.8.2</plugin.deploy.version>
+        <plugin.clean.version>3.1.0</plugin.clean.version>
+        <plugin.jar.version>3.2.0</plugin.jar.version>
+        <plugin.enforcer.version>3.0.0</plugin.enforcer.version>
+        <plugin.offline.version>1.2.8</plugin.offline.version>
+        <plugin.source.version>3.2.1</plugin.source.version>
+        <!-- release -->
+        <plugin.release.version>2.5.3</plugin.release.version>
+        <!-- During release:prepare and release:perform, pass the "release" property to enable the
+            "release" profile (and enable/disable other profiles based on whether they need releasing) -->
+        <arguments>-Drelease</arguments>
+        <pushChanges>false</pushChanges>
+        <localCheckout>true</localCheckout>
+        <autoVersionSubmodules>true</autoVersionSubmodules>
+        <!-- license -->
+        <plugin.license.version>4.1</plugin.license.version>
+        <license.header>${user.dir}/src/main/license/LICENSE_HEADER.txt</license.header>
+        <license.strictCheck>true</license.strictCheck>
     </properties>
 
     <build>
-        <!-- Define Maven Plugin Settings that should be inherited to ALL submodule POMs.
-             (NOTE: individual POMs can override specific settings). -->
-        <pluginManagement>
-            <plugins>
-                <!-- Use to enforce particular versions of Java and Maven,
-                     and to ensure no conflicting dependencies -->
-                <plugin>
-                    <!-- https://maven.apache.org/enforcer/enforcer-rules -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>3.0.0</version>
-                    <executions>
-                        <execution>
-                            <id>enforce-env</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <requireJavaVersion>
-                                        <version>${java.version}</version>
-                                    </requireJavaVersion>
-                                    <requireMavenVersion>
-                                        <version>[${maven.version},)</version>
-                                    </requireMavenVersion>
-                                </rules>
-                            </configuration>
-                        </execution>
-                        <!-- Make sure that we do not have conflicting dependencies-->
-                        <execution>
-                            <id>enforce-versions</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <DependencyConvergence/>
-                                </rules>
-                            </configuration>
-                        </execution>
-                        <!-- https://maven.apache.org/enforcer/enforcer-rules/bannedDependencies.html -->
-                        <execution>
-                            <id>ban-dependencies</id>
-                            <goals>
-                                <goal>enforce</goal>
-                            </goals>
-                            <configuration>
-                                <rules>
-                                    <bannedDependencies>
-                                        <excludes>
-                                            <exclude>log4j:log4j</exclude>
-                                        </excludes>
-                                    </bannedDependencies>
-                                </rules>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Used to compile Kotlin classes -->
-                <plugin>
-                    <!-- https://kotlinlang.org/docs/maven.html -->
-                    <groupId>org.jetbrains.kotlin</groupId>
-                    <artifactId>kotlin-maven-plugin</artifactId>
-                    <version>${kotlin.version}</version>
-                    <executions>
-                        <execution>
-                            <id>compile</id>
-                            <phase>compile</phase>
-                            <goals>
-                                <goal>compile</goal>
-                            </goals>
-                            <configuration>
-                                <sourceDirs>
-                                    <sourceDir>${path.source}</sourceDir>
-                                </sourceDirs>
-                            </configuration>
-                        </execution>
-                        <execution>
-                            <id>test-compile</id>
-                            <phase>test-compile</phase>
-                            <goals>
-                                <goal>test-compile</goal>
-                            </goals>
-                            <configuration>
-                                <sourceDirs>
-                                    <sourceDir>${path.test}</sourceDir>
-                                </sourceDirs>
-                            </configuration>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <compilerPlugins>
-                            <plugin>kotlinx-serialization</plugin>
-                        </compilerPlugins>
-                    </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>org.jetbrains.kotlin</groupId>
-                            <artifactId>kotlin-maven-serialization</artifactId>
-                            <version>${kotlin.version}</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <!-- Used to package all JARs -->
-                <plugin>
-                    <!-- https://maven.apache.org/shared/maven-archiver/ -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.2.0</version>
-                </plugin>
-                <!-- Used to run Unit tests -->
-                <plugin>
-                    <!-- https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.22.2</version>
-                    <configuration>
-                        <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
-                             maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
-                        <argLine>${test.argLine} ${surefireJacoco}</argLine>
-                        <!-- tests whose name starts by Abstract will be ignored -->
-                        <excludes>
-                            <exclude>**/Abstract*</exclude>
-                        </excludes>
-                        <includes>
-                            <include>**/*Test.java</include>
-                        </includes>
-                        <!-- Detailed logs in surefire-reports/testName-output.txt instead of stdout -->
-                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                        <!-- Ensure full stacktrace is logged (when errors occur) -->
-                        <trimStackTrace>false</trimStackTrace>
-                        <!-- Whether to skip unit tests or not -->
-                        <skipTests>${skipUnitTests}</skipTests>
-                        <!--
-                        Enable to debug Maven Surefire tests in remote process
-                        <debugForkedProcess>true</debugForkedProcess>
-                        -->
-                        <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
-                        <forkCount>0</forkCount>
-                    </configuration>
-                </plugin>
-                <!-- Used to run Integration tests -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.22.2</version>
-                    <configuration>
-                        <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
-                             maven-failsafe-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
-                        <argLine>${test.argLine} ${failsafeJacoco}</argLine>
-                        <excludes>
-                            <exclude>**/Abstract*</exclude>
-                        </excludes>
-                        <includes>
-                            <include>**/*IT.java</include>
-                        </includes>
-                        <!-- Detailed logs in failsafe-reports/testName-output.txt instead of stdout -->
-                        <redirectTestOutputToFile>true</redirectTestOutputToFile>
-                        <!-- Ensure full stacktrace is logged (when errors occur) -->
-                        <trimStackTrace>false</trimStackTrace>
-                        <!-- Whether to skip integration tests or not -->
-                        <skipTests>${skipIntegrationTests}</skipTests>
-                        <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
-                        <forkCount>0</forkCount>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-                <!-- Used to clean all 'target' directories from parent project -->
-                <!-- This additional configuration also cleans sub-modules -->
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-clean-plugin/ -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-clean-plugin</artifactId>
-                    <version>3.1.0</version>
-                </plugin>
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-assembly-plugin/index.html -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>3.3.0</version>
-                </plugin>
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-dependency-plugin/ -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.1.2</version>
-                </plugin>
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-resources-plugin/ -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.2.0</version>
-                </plugin>
-                <!-- Used to validate License Headers (see build process) -->
-                <plugin>
-                    <!-- https://www.mojohaus.org/license-maven-plugin/ -->
-                    <groupId>com.mycila</groupId>
-                    <artifactId>license-maven-plugin</artifactId>
-                    <version>4.1</version>
-                    <dependencies>
-                        <dependency>
-                            <groupId>com.mycila</groupId>
-                            <artifactId>license-maven-plugin-git</artifactId>
-                            <!-- make sure you use the same version as license-maven-plugin -->
-                            <version>4.1</version>
-                        </dependency>
-                    </dependencies>
-                </plugin>
-                <!-- Used to generate JavaDocs for new releases (see release profile). -->
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-javadoc-plugin/javadoc-mojo.html -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>3.3.1</version>
-                    <configuration>
-                        <!-- Never fail a build based on Javadoc errors -->
-                        <failOnError>false</failOnError>
-                    </configuration>
-                </plugin>
-                <!-- Used to generate source JARs for new releases (see release profile). -->
-                <plugin>
-                    <!-- https://maven.apache.org/plugins/maven-source-plugin/ -->
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <version>3.2.1</version>
-                </plugin>
-                <!-- Used for code coverage reporting (see 'measure-test-coverage' profile) -->
-                <plugin>
-                    <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
-                    <groupId>org.jacoco</groupId>
-                    <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.8.7</version>
-                </plugin>
-                <plugin>
-                    <!-- https://www.mojohaus.org/versions-maven-plugin/index.html -->
-                    <groupId>org.codehaus.mojo</groupId>
-                    <artifactId>versions-maven-plugin</artifactId>
-                    <version>2.8.1</version>
-                </plugin>
-                <plugin>
-                    <!-- https://github.com/qaware/go-offline-maven-plugin -->
-                    <groupId>de.qaware.maven</groupId>
-                    <artifactId>go-offline-maven-plugin</artifactId>
-                    <version>1.2.8</version>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
-
-        <!-- These plugin settings only apply to this single POM and are not inherited
-             to any submodules. -->
+        <sourceDirectory>${project.basedir}/src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>${project.basedir}/src/test/kotlin</testSourceDirectory>
         <plugins>
-            <!-- Specify our settings for new releases via 'mvn release:*' -->
+            <!-- Use to enforce particular versions of Java and Maven,
+                 and to ensure no conflicting dependencies -->
             <plugin>
+                <!-- https://maven.apache.org/enforcer/enforcer-rules -->
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${plugin.enforcer.version}</version>
                 <configuration>
-                    <!-- During release:prepare and release:perform, pass the "release" property to enable the
-                     "release" profile (and enable/disable other profiles based on whether they need releasing) -->
-                    <arguments>-Drelease</arguments>
-                    <goals>deploy</goals>
-                    <!-- Suggest tagging the release in SCM as "[version]" -->
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <!-- Auto-Version all modules the same as the parent module -->
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <rules>
+                        <requireJavaVersion>
+                            <version>${java.version}</version>
+                        </requireJavaVersion>
+                        <requireMavenVersion>
+                            <version>[${maven.version},)</version>
+                        </requireMavenVersion>
+                        <bannedDependencies>
+                            <excludes>
+                                <exclude>log4j:log4j</exclude>
+                            </excludes>
+                        </bannedDependencies>
+                        <DependencyConvergence/>
+                    </rules>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-            <!-- Check license headers in all files using LICENSE_HEADER template -->
+            <!-- Used to compile Kotlin classes -->
             <plugin>
+                <!-- https://kotlinlang.org/docs/maven.html -->
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>test-compile</id>
+                        <phase>test-compile</phase>
+                        <goals>
+                            <goal>test-compile</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <compilerPlugins>
+                        <plugin>kotlinx-serialization</plugin>
+                    </compilerPlugins>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-maven-serialization</artifactId>
+                        <version>${kotlin.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- Used to package all JARs -->
+            <plugin>
+                <!-- https://maven.apache.org/shared/maven-archiver/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${plugin.jar.version}</version>
+            </plugin>
+            <!-- Used to run Unit tests -->
+            <plugin>
+                <!-- https://maven.apache.org/surefire/maven-surefire-plugin/test-mojo.html -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${plugin.test.version}</version>
+            </plugin>
+            <!-- clean -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-clean-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>${plugin.clean.version}</version>
+            </plugin>
+            <!-- deploy -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-deploy-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>${plugin.deploy.version}</version>
+            </plugin>
+            <!-- install -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-install-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${plugin.install.version}</version>
+            </plugin>
+            <!-- dependency -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-dependency-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>${plugin.dependency.version}</version>
+            </plugin>
+            <!-- resource -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-resources-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${plugin.resources.version}</version>
+            </plugin>
+            <!-- Used for code coverage reporting -->
+            <plugin>
+                <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${plugin.jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Used to validate License Headers (see build process) -->
+            <plugin>
+                <!-- https://www.mojohaus.org/license-maven-plugin/ -->
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>
+                <version>${plugin.license.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin-git</artifactId>
+                        <!-- make sure you use the same version as license-maven-plugin -->
+                        <version>${plugin.license.version}</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    <!-- License header file (can be a URL, but that's less stable if external site is down on occasion) -->
-                    <header>${root.basedir}/src/main/license/LICENSE_HEADER.txt</header>
-                    <!--Just check headers of everything in the /src directory -->
+                    <mapping>
+                        <kt>JAVADOC_STYLE</kt>
+                        <kts>JAVADOC_STYLE</kts>
+                    </mapping>
                     <includes>
                         <include>src/**</include>
                     </includes>
-                    <!--Use all default exclusions for IDE files & Maven files, see:
-                        http://mycila.mathieu.photography/license-maven-plugin/ -->
-                    <useDefaultExcludes>true</useDefaultExcludes>
-                    <!-- Add some default exclusions not covered by <useDefaultExcludes>
-                         Individual Maven projects may choose to override these defaults. -->
                     <excludes>
                         <exclude>**/src/test/resources/**</exclude>
                         <exclude>**/src/test/data/**</exclude>
@@ -359,14 +305,6 @@
                         <exclude>**/*.cfg</exclude>
                         <exclude>**/*.conf</exclude>
                     </excludes>
-                    <mapping>
-                        <!-- Custom file extensions which are not recognized by license-maven-plugin:
-                             *.kt (kotlin sources) -->
-                        <kt>JAVADOC_STYLE</kt>
-                    </mapping>
-                    <encoding>${encoding}</encoding>
-                    <!-- maven-license-plugin recommends a strict check (e.g. check spaces/tabs too) -->
-                    <strictCheck>true</strictCheck>
                 </configuration>
                 <executions>
                     <execution>
@@ -378,215 +316,54 @@
                     </execution>
                 </executions>
             </plugin>
-            <!-- Enforce our version of Java, Maven, dependencies, etc. -->
+            <!-- Used to generate JavaDocs for new releases (see release profile). -->
+            <plugin>
+                <!-- https://github.com/Kotlin/dokka -->
+                <groupId>org.jetbrains.dokka</groupId>
+                <artifactId>dokka-maven-plugin</artifactId>
+                <version>${kotlin.version}</version>
+                <configuration>
+                    <dokkaPlugins>
+                        <plugin>
+                            <groupId>org.jetbrains.dokka</groupId>
+                            <artifactId>javadoc-plugin</artifactId>
+                            <version>${kotlin.version}</version>
+                        </plugin>
+                    </dokkaPlugins>
+                </configuration>
+            </plugin>
+            <!-- Used to generate source JARs for new releases (see release profile). -->
+            <plugin>
+                <!-- https://maven.apache.org/plugins/maven-source-plugin/ -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>${plugin.source.version}</version>
+            </plugin>
+            <!-- Specify our settings for new releases via 'mvn release:*' -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-enforcer-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <!-- https://www.mojohaus.org/versions-maven-plugin/index.html -->
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <!-- https://github.com/qaware/go-offline-maven-plugin -->
-                <groupId>de.qaware.maven</groupId>
-                <artifactId>go-offline-maven-plugin</artifactId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${plugin.release.version}</version>
+                <configuration>
+                    <goals>install</goals>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
-        <!-- Allow for passing extra memory to Unit/Integration tests.
-             By default this gives unit tests 1GB of memory max (when tests are enabled),
-             unless tweaked on commandline (e.g. "-Dtest.argLine=-Xmx512m"). Since
-             m-surefire-p and m-failsafe-p both fork a new JVM for testing, they ignores MAVEN_OPTS. -->
         <profile>
-            <id>test-argLine</id>
+            <id>coverage</id>
             <activation>
                 <property>
-                    <name>!test.argLine</name>
-                </property>
-            </activation>
-            <properties>
-                <test.argLine>-Xmx1024m</test.argLine>
-            </properties>
-        </profile>
-
-        <!-- This profile ensures that we generate the Unit Test Environment, whenever the testEnvironment.xml
-             file is found. This allows us to run Unit & Integration tests separately for CI, etc. -->
-        <profile>
-            <id>test-environment</id>
-            <activation>
-                <file>
-                    <exists>src/main/assembly/testEnvironment.xml</exists>
-                </file>
-                <!-- Disable if we are doing a release (-Drelease) -->
-                <property>
-                    <name>!release</name>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- This plugin builds the testEnvironment.zip package
-                         based on the specifications in testEnvironment.xml.
-                         TestEnvironment.zip is an entire installation directory,
-                         which used to run our Unit/Integration tests.  -->
-                    <plugin>
-                        <artifactId>maven-assembly-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <phase>generate-test-resources</phase>
-                                <goals>
-                                    <goal>single</goal>
-                                </goals>
-                                <configuration>
-                                    <descriptors>
-                                        <descriptor>src/main/assembly/testEnvironment.xml</descriptor>
-                                    </descriptors>
-                                </configuration>
-                            </execution>
-                        </executions>
-                        <inherited>false</inherited>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Measure test coverage of Unit Tests using JaCoCo (when -DskipUnitTests=false) -->
-        <profile>
-            <id>measure-unit-test-coverage</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>skipUnitTests</name>
+                    <name>skipTests</name>
                     <value>false</value>
                 </property>
             </activation>
-            <build>
-                <plugins>
-                    <!-- Report unit test code coverage -->
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <!--
-                                Prepares the property pointing to the JaCoCo runtime agent which
-                                is passed as VM argument when Maven the Surefire plugin is executed.
-                            -->
-                            <execution>
-                                <id>pre-unit-test</id>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <configuration>
-                                    <!-- Sets the path to the file which contains the execution data. -->
-                                    <destFile>${project.build.directory}/coverage-reports/jacoco-ut.exec</destFile>
-                                    <!--
-                                        Sets the name of the property containing the settings
-                                        for JaCoCo runtime agent.
-                                    -->
-                                    <propertyName>surefireJacoco</propertyName>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!-- Measure test coverage of Integration Tests using JaCoCo (when -DskipIntegrationTests=false) -->
-        <profile>
-            <id>measure-integration-test-coverage</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-                <property>
-                    <name>skipIntegrationTests</name>
-                    <value>false</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <!-- Report integration test code coverage -->
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <!--
-                                Prepares the property pointing to the JaCoCo runtime agent which
-                                is passed as VM argument when Maven the Failsafe plugin is executed.
-                            -->
-                            <execution>
-                                <id>pre-integration-test</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                                <configuration>
-                                    <!-- Sets the path to the file which contains the execution data. -->
-                                    <destFile>${project.build.directory}/coverage-reports/jacoco-it.exec</destFile>
-                                    <!--
-                                        Sets the name of the property containing the settings
-                                        for JaCoCo runtime agent.
-                                    -->
-                                    <propertyName>failsafeJacoco</propertyName>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-
-        <!--
-           These profiles activate the inclusion of various modules into
-           Build process. They activate automatically if the
-           source module is in the local file system, correctly located
-           relative to this file.
-        -->
-
-        <!--
-           Builds core of Telegraff
-        -->
-        <profile>
-            <id>telegraff-core</id>
-            <activation>
-                <file>
-                    <exists>telegraff-core/pom.xml</exists>
-                </file>
-            </activation>
             <modules>
-                <module>telegraff-core</module>
+                <module>coverage</module>
             </modules>
         </profile>
-
-        <!--
-           Builds Spring starter for Telegraff
-        -->
-        <profile>
-            <id>spring-autoconfigure</id>
-            <activation>
-                <file>
-                    <exists>telegraff-autoconfigure/pom.xml</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>telegraff-autoconfigure</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>telegraff-starter</id>
-            <activation>
-                <file>
-                    <exists>telegraff-starter/pom.xml</exists>
-                </file>
-            </activation>
-            <modules>
-                <module>telegraff-starter</module>
-            </modules>
-        </profile>
-
 
         <!--
          The 'release' profile is used by the 'maven-release-plugin' (see above)
@@ -621,13 +398,14 @@
                     </plugin>
                     <!-- For new releases, generate JavaDocs for each module -->
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <groupId>org.jetbrains.dokka</groupId>
+                        <artifactId>dokka-maven-plugin</artifactId>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
+                                <phase>package</phase>
                                 <goals>
-                                    <goal>jar</goal>
+                                    <goal>javadocJar</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -636,6 +414,7 @@
             </build>
         </profile>
     </profiles>
+
 
     <dependencyManagement>
         <dependencies>
@@ -713,53 +492,18 @@
         </dependencies>
     </dependencyManagement>
 
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
-    <developers>
-        <developer>
-            <name>Alex Zima</name>
-            <email>xzima@ro.ru</email>
-            <roles>
-                <role>architect</role>
-                <role>developer</role>
-            </roles>
-        </developer>
-    </developers>
-
-    <contributors>
-        <contributor>
-            <name>Ruslan Molchanov</name>
-            <email>me@ruslanys.me</email>
-            <url>https://ruslanys.me</url>
-            <roles>
-                <role>developer</role>
-            </roles>
-        </contributor>
-    </contributors>
-
-    <scm>
-        <connection>scm:git:git@github.com:xzima/telegraff.git</connection>
-        <developerConnection>scm:git:git@github.com:xzima/telegraff.git</developerConnection>
-        <url>git@github.com:xzima/telegraff.git</url>
-        <tag>HEAD</tag>
-    </scm>
-
-    <repositories>
-        <repository>
-            <id>central</id>
-            <name>Maven Central</name>
-            <url>https://repo1.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>jitpack.io</id>
-            <name>JitPack</name>
-            <url>https://jitpack.io</url>
-        </repository>
-    </repositories>
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+    </dependencies>
 </project>

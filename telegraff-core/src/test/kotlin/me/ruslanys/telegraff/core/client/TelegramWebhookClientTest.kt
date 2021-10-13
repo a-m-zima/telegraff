@@ -37,7 +37,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
 @RunWith(SpringRunner::class)
 @WebMvcTest(TelegramWebhookClient::class)
-class TelegramWebhookClientIT {
+class TelegramWebhookClientTest {
 
     @get:Rule
     val capture = OutputCaptureRule()
