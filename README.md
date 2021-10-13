@@ -12,7 +12,7 @@ repositories {
 }
 ```
 
-Gradle: 
+Gradle:
 
 ```
 compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
@@ -28,6 +28,27 @@ Maven:
 </dependency>
 ```
 
+## Сборка
+
+### Локальная сборка
+
+```shell
+./mvnw clean install
+```
+
+### Локальная сборка с тестами
+
+```shell
+./mvnw clean install -DskipTests=false
+```
+
+### Релиз
+
+```shell
+./mvnw release:prepare  # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
+./mvnw release:perform # checkout на последний релиз, сборка и деплой
+```
+
 ## Настройка
 
 ```
@@ -41,7 +62,6 @@ telegram.webhook-endpoint-url=        # optional
 
 Положите файл с расширением `.kts` в папку c ресурсами `handlers`:
 `resources/handlers/ExampleHandler.kts`.
-
 
 ```kotlin
 enum class PaymentMethod {
