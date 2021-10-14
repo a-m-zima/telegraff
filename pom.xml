@@ -129,6 +129,8 @@
         <plugin.license.version>4.1</plugin.license.version>
         <license.header>${user.dir}/src/main/license/LICENSE_HEADER.txt</license.header>
         <license.strictCheck>true</license.strictCheck>
+        <plugin.changelog.version>1.78</plugin.changelog.version>
+        <plugin.github-release.version>1.0.3</plugin.github-release.version>
     </properties>
 
     <build>
@@ -360,6 +362,20 @@
                 <configuration>
                     <goals>install</goals>
                 </configuration>
+            </plugin>
+            <!-- Generate a changelog or release notes, from a GIT repository -->
+            <plugin>
+                <!-- https://github.com/RagedUnicorn/github-release-maven-plugin -->
+                <groupId>se.bjurr.gitchangelog</groupId>
+                <artifactId>git-changelog-maven-plugin</artifactId>
+                <version>${plugin.changelog.version}</version>
+            </plugin>
+            <!-- Creating GitHub releases including the attachment of assets and release notes -->
+            <plugin>
+                <!-- https://github.com/RagedUnicorn/github-release-maven-plugin -->
+                <groupId>com.ragedunicorn.tools.maven</groupId>
+                <artifactId>github-release-maven-plugin</artifactId>
+                <version>${plugin.github-release.version}</version>
             </plugin>
         </plugins>
     </build>
