@@ -33,13 +33,13 @@ Maven:
 ### Локальная сборка
 
 ```shell
-./mvnw clean install
+./mvnw clean install -DskipTests
 ```
 
 ### Локальная сборка с тестами
 
 ```shell
-./mvnw clean install -DskipTests=false
+./mvnw clean install
 ```
 
 ### Релиз
