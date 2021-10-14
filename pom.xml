@@ -365,10 +365,40 @@
             </plugin>
             <!-- Generate a changelog or release notes, from a GIT repository -->
             <plugin>
-                <!-- https://github.com/RagedUnicorn/github-release-maven-plugin -->
+                <!-- https://github.com/tomasbjerre/git-changelog-maven-plugin -->
                 <groupId>se.bjurr.gitchangelog</groupId>
                 <artifactId>git-changelog-maven-plugin</artifactId>
                 <version>${plugin.changelog.version}</version>
+                <inherited>false</inherited>
+                <executions>
+                    <!-- Generate CHANGELOG.md // -->
+                    <execution>
+                        <id>GenerateGitChangelog</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>git-changelog</goal>
+                        </goals>
+                        <configuration>
+                            <gitHubApi>https://api.github.com/repos/xzima/telegraff</gitHubApi>
+                            <templateFile>src/main/changelog/changelog.mustache</templateFile>
+                            <readableTagName>[v-]([^-]+?)$</readableTagName>
+                            <ignoreTagsIfNameMatches>.*[^0-9]$</ignoreTagsIfNameMatches>
+                        </configuration>
+                    </execution>
+                    <!--                    &lt;!&ndash; Set references to create releasenotes for version 1.1 // &ndash;&gt;-->
+                    <!--                    <execution>-->
+                    <!--                        <id>GenerateGitReleasenotes11</id>-->
+                    <!--                        <phase>generate-sources</phase>-->
+                    <!--                        <goals>-->
+                    <!--                            <goal>git-changelog</goal>-->
+                    <!--                        </goals>-->
+                    <!--                        <configuration>-->
+                    <!--                            <file>RELEASENOTES_1_0_1_1.md</file>-->
+                    <!--                            <fromRef>git-changelog-maven-plugin-1.0</fromRef>-->
+                    <!--                            <toRef>git-changelog-maven-plugin-1.1</toRef>-->
+                    <!--                        </configuration>-->
+                    <!--                    </execution>-->
+                </executions>
             </plugin>
             <!-- Creating GitHub releases including the attachment of assets and release notes -->
             <plugin>

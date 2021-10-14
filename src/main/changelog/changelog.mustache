@@ -1,0 +1,145 @@
+# Changelog
+
+Changelog for {{ownerName}} {{repoName}}.
+
+---
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+---
+
+{{#tags}}
+{{#ifReleaseTag .}}
+## {{name}}
+
+    {{#issues}}
+        {{#hasIssue}}
+            {{#hasLink}}
+### {{name}} [{{issue}}]({{link}}) {{title}} {{#hasIssueType}} *{{issueType}}* {{/hasIssueType}} {{#hasLabels}} {{#labels}} *{{.}}* {{/labels}} {{/hasLabels}}
+            {{/hasLink}}
+            {{^hasLink}}
+### {{name}} {{issue}} {{title}} {{#hasIssueType}} *{{issueType}}* {{/hasIssueType}} {{#hasLabels}} {{#labels}} *{{.}}* {{/labels}} {{/hasLabels}}
+            {{/hasLink}}
+        {{/hasIssue}}
+        {{^hasIssue}}
+### {{name}}
+        {{/hasIssue}}
+
+        {{#ifContainsBreaking commits}}
+#### 💥 Breaking changes
+
+            {{#commits}}
+                {{#ifCommitBreaking .}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitBreaking}}
+            {{/commits}}
+        {{/ifContainsBreaking}}
+        {{#ifContainsType commits type='feat'}}
+#### ✨ Features
+
+            {{#commits}}
+                {{#ifCommitType . type='feat'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='fix'}}
+#### 🐛 Bug Fixes
+
+            {{#commits}}
+                {{#ifCommitType . type='fix'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='docs'}}
+#### 📚 Documentation
+
+            {{#commits}}
+                {{#ifCommitType . type='docs'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='style'}}
+#### 🎨 Code style and formatting
+
+            {{#commits}}
+                {{#ifCommitType . type='style'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='refactor'}}
+#### ♻ Refactoring
+
+            {{#commits}}
+                {{#ifCommitType . type='refactor'}}
+                    - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='build'}}
+#### 📦 Build process
+
+            {{#commits}}
+                {{#ifCommitType . type='build'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+{{#messageBodyItems}}
+    * {{.}}
+{{/messageBodyItems}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+        {{/ifContainsType}}
+        {{#ifContainsType commits type='chore'}}
+#### 🔧 Other
+        {{else}}
+            {{#ifContainsType commits type=''}}
+#### 🔧 Other
+            {{/ifContainsType}}
+        {{/ifContainsType}}
+            {{#commits}}
+                {{#ifCommitType . type='chore'}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+                {{#ifCommitType . type=''}}
+- **{{{messageTitle}}}**
+
+{{#messageBodyItems}}
+    * {{.}}
+{{/messageBodyItems}}
+
+[{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
+
+                {{/ifCommitType}}
+            {{/commits}}
+---
+    {{/issues}}
+{{/ifReleaseTag}}
+{{/tags}}
