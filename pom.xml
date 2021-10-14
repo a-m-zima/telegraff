@@ -92,7 +92,7 @@
         <testJavaOpts>-Xmx1024m</testJavaOpts>
         <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
              maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
-        <argLine>${testJavaOpts} ${jacocoArgLine}</argLine>
+        <argLine>${testJavaOpts} @{jacocoArgLine}</argLine>
         <!-- Detailed logs in surefire-reports/testName-output.txt instead of stdout -->
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <!-- Ensure full stacktrace is logged (when errors occur) -->
