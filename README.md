@@ -33,20 +33,37 @@ Maven:
 ### Локальная сборка
 
 ```shell
-./mvnw clean install -DskipTests
+./mvnw clean install
 ```
 
-### Локальная сборка с тестами
+### Локальная сборка без тестов
 
 ```shell
-./mvnw clean install
+./mvnw clean install -DskipTests
 ```
 
 ### Релиз
 
 ```shell
 ./mvnw release:prepare  # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
-./mvnw release:perform # checkout на последний релиз, сборка и деплой
+## отправка релиза с тегом в github
+## указать в pom.xml в fromRef и toRef значения предыдущего и нового релизов соответственно
+./mvnw compile -Prelease-note # генерация release-note
+## создать релиз вручную указав имя как версию и поместив в тело сгенерированный RELEASE_NOTES.md без заголовков
+./mvnw clean release:clean # очистка метаданных
+```
+
+### Обновление changelog
+
+```shell
+./mvnw compile -Pchangelog
+```
+
+### Отчет о покрытии тестами
+
+```shell
+./mvnw clean verify -Pcoverage
+## see coverage/target/site/jacoco-aggregate/index.html
 ```
 
 ## Настройка
