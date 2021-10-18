@@ -87,19 +87,13 @@
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
+        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
         <!-- test -->
         <plugin.test.version>2.22.2</plugin.test.version>
-        <testJavaOpts>-Xmx1024m</testJavaOpts>
-        <!-- Allow for the ability to pass JVM memory flags for Unit Tests. Since
-             maven-surefire-plugin forks a new JVM, it ignores MAVEN_OPTS.-->
-        <argLine>${testJavaOpts} @{jacocoArgLine}</argLine>
         <!-- Detailed logs in surefire-reports/testName-output.txt instead of stdout -->
         <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
         <!-- Ensure full stacktrace is logged (when errors occur) -->
         <trimStackTrace>false</trimStackTrace>
-        <!-- jacoco -->
-        <plugin.jacoco.version>0.8.7</plugin.jacoco.version>
-        <jacoco.propertyName>jacocoArgLine</jacoco.propertyName>
         <!--==========================================-->
         <!-- DEPENDENCIES -->
         <spring.version>5.2.5.RELEASE</spring.version>
@@ -129,8 +123,15 @@
         <plugin.license.version>4.1</plugin.license.version>
         <license.header>${user.dir}/src/main/license/LICENSE_HEADER.txt</license.header>
         <license.strictCheck>true</license.strictCheck>
+        <!-- changelog -->
         <plugin.changelog.version>1.78</plugin.changelog.version>
-        <plugin.github-release.version>1.0.3</plugin.github-release.version>
+        <gitHubApi>https://api.github.com/repos/xzima/telegraff</gitHubApi>
+        <templateFile>src/main/changelog/changelog.mustache</templateFile>
+        <readableTagName>[v-]([^-]+?)$</readableTagName>
+        <ignoreTagsIfNameMatches>.*[^0-9]$</ignoreTagsIfNameMatches>
+        <ignoreCommitsIfMessageMatches>
+            ^\[maven-release-plugin\].*
+        </ignoreCommitsIfMessageMatches>
     </properties>
 
     <build>
@@ -253,21 +254,6 @@
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${plugin.resources.version}</version>
             </plugin>
-            <!-- Used for code coverage reporting -->
-            <plugin>
-                <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${plugin.jacoco.version}</version>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Used to validate License Headers (see build process) -->
             <plugin>
                 <!-- https://www.mojohaus.org/license-maven-plugin/ -->
@@ -370,42 +356,6 @@
                 <artifactId>git-changelog-maven-plugin</artifactId>
                 <version>${plugin.changelog.version}</version>
                 <inherited>false</inherited>
-                <executions>
-                    <!-- Generate CHANGELOG.md // -->
-                    <execution>
-                        <id>GenerateGitChangelog</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>git-changelog</goal>
-                        </goals>
-                        <configuration>
-                            <gitHubApi>https://api.github.com/repos/xzima/telegraff</gitHubApi>
-                            <templateFile>src/main/changelog/changelog.mustache</templateFile>
-                            <readableTagName>[v-]([^-]+?)$</readableTagName>
-                            <ignoreTagsIfNameMatches>.*[^0-9]$</ignoreTagsIfNameMatches>
-                        </configuration>
-                    </execution>
-                    <!--                    &lt;!&ndash; Set references to create releasenotes for version 1.1 // &ndash;&gt;-->
-                    <!--                    <execution>-->
-                    <!--                        <id>GenerateGitReleasenotes11</id>-->
-                    <!--                        <phase>generate-sources</phase>-->
-                    <!--                        <goals>-->
-                    <!--                            <goal>git-changelog</goal>-->
-                    <!--                        </goals>-->
-                    <!--                        <configuration>-->
-                    <!--                            <file>RELEASENOTES_1_0_1_1.md</file>-->
-                    <!--                            <fromRef>git-changelog-maven-plugin-1.0</fromRef>-->
-                    <!--                            <toRef>git-changelog-maven-plugin-1.1</toRef>-->
-                    <!--                        </configuration>-->
-                    <!--                    </execution>-->
-                </executions>
-            </plugin>
-            <!-- Creating GitHub releases including the attachment of assets and release notes -->
-            <plugin>
-                <!-- https://github.com/RagedUnicorn/github-release-maven-plugin -->
-                <groupId>com.ragedunicorn.tools.maven</groupId>
-                <artifactId>github-release-maven-plugin</artifactId>
-                <version>${plugin.github-release.version}</version>
             </plugin>
         </plugins>
     </build>
@@ -413,15 +363,77 @@
     <profiles>
         <profile>
             <id>coverage</id>
-            <activation>
-                <property>
-                    <name>skipTests</name>
-                    <value>false</value>
-                </property>
-            </activation>
             <modules>
                 <module>coverage</module>
             </modules>
+            <build>
+                <plugins>
+                    <!-- Used for code coverage reporting -->
+                    <plugin>
+                        <!-- https://www.eclemma.org/jacoco/trunk/doc/maven.html -->
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${plugin.jacoco.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>changelog</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- https://github.com/tomasbjerre/git-changelog-maven-plugin -->
+                        <groupId>se.bjurr.gitchangelog</groupId>
+                        <artifactId>git-changelog-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Generate CHANGELOG.md // -->
+                            <execution>
+                                <id>changelog</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>git-changelog</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>release-note</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!-- https://github.com/tomasbjerre/git-changelog-maven-plugin -->
+                        <groupId>se.bjurr.gitchangelog</groupId>
+                        <artifactId>git-changelog-maven-plugin</artifactId>
+                        <executions>
+                            <!-- Generate RELEASE_NOTES.md -->
+                            <execution>
+                                <id>release-note</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>git-changelog</goal>
+                                </goals>
+                                <configuration>
+                                    <file>RELEASE_NOTES.md</file>
+                                    <fromRef>TODO</fromRef>
+                                    <toRef>TODO</toRef>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 
