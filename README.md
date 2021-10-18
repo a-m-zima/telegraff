@@ -12,7 +12,7 @@ repositories {
 }
 ```
 
-Gradle: 
+Gradle:
 
 ```
 compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
@@ -41,7 +41,6 @@ telegram.webhook-endpoint-url=        # optional
 
 Положите файл с расширением `.kts` в папку c ресурсами `handlers`:
 `resources/handlers/ExampleHandler.kts`.
-
 
 ```kotlin
 enum class PaymentMethod {
@@ -90,3 +89,43 @@ handler("/taxi", "такси") {
 ## Устройство
 
 ![Обработка сообщений](docs/processing-diagram.png "Обработка сообщений")
+
+## Сборка
+
+```shell
+.\gradlew.bat clean build
+# или
+./gradlew clean build
+```
+
+## Генерация отчета по покрытию тестами
+
+```shell
+.\gradlew.bat test jacocoRootReport
+# или
+./gradlew test jacocoRootReport
+```
+
+## Проверка версий зависимостей
+```shell
+.\gradlew.bat checkDependencyUpdates
+# или
+./gradlew checkDependencyUpdates
+```
+
+## Проверка копирайта
+
+## Генерация копирайта
+
+## Генерация LICENSES_THIRD_PARTY
+
+## Генерация CHANGELOG.md
+
+## Выпуск нового релиза
+
+## Сборка jitpack
+
+```shell
+./gradlew build publishToMavenLocal
+```
+[Guide to publishing Gradle projects](https://jitpack.io/docs/BUILDING/#gradle-projects)
