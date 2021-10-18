@@ -1,9 +1,12 @@
 plugins {
-    kotlin("jvm")
-    kotlin("kapt")
-    id("org.jetbrains.dokka")
     `java-library`
     `maven-publish`
+    kotlin("jvm")
+    kotlin("kapt")
+    kotlin("plugin.serialization")
+    id("org.jetbrains.dokka")
+    // TODO try to replace with Dependabot
+    id("name.remal.check-dependency-updates")
 }
 
 group = "com.github.xzima.telegraff"

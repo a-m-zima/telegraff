@@ -11,10 +11,13 @@ dependencies {
     implementation(kotlin("gradle-plugin", kotlinVersion))
     implementation(kotlin("reflect", kotlinVersion))
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
+    implementation(kotlin("serialization", kotlinVersion))
     implementation("org.jetbrains.dokka", "dokka-gradle-plugin", kotlinVersion)
     implementation(
         "org.jetbrains.kotlin.plugin.spring",
         "org.jetbrains.kotlin.plugin.spring.gradle.plugin",
         kotlinVersion
     )
+    // TODO try to replace with Dependabot
+    implementation("name.remal:gradle-plugins:1.5.0")
 }
