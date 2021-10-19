@@ -1,5 +1,12 @@
+import com.github.jk1.license.filter.DependencyFilter
+import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.render.InventoryMarkdownReportRenderer
+import com.github.jk1.license.render.ReportRenderer
+import com.github.jk1.license.render.TextReportRenderer
+
 plugins {
     jacoco
+    id("com.github.jk1.dependency-license-report") version "2.0"
 }
 
 repositories {
@@ -23,4 +30,16 @@ tasks.register<JacocoReport>("jacocoRootReport") {
         xml.isEnabled = true
         html.isEnabled = true
     }
+}
+
+licenseReport {
+    excludeOwnGroup = true
+    excludeBoms = true
+    renderers = arrayOf<ReportRenderer>(
+        InventoryMarkdownReportRenderer(),
+        TextReportRenderer(),
+    )
+    filters = arrayOf<DependencyFilter>(
+        LicenseBundleNormalizer("$projectDir/license-normalizer-bundle.json", true)
+    )
 }
