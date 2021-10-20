@@ -15,7 +15,6 @@
  */
 package me.ruslanys.telegraff.core.dsl
 
-import me.ruslanys.telegraff.core.dto.request.TelegramSendRequest
 import me.ruslanys.telegraff.core.exception.HandlerException
 
 
@@ -107,9 +106,9 @@ class StepDsl<T : Any>(val key: String) {
 }
 
 
-typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> TelegramSendRequest?
+typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> Unit
 
-typealias QuestionBlock = (HandlerState) -> TelegramSendRequest
+typealias QuestionBlock = (HandlerState) -> Unit
 typealias ValidationBlock<T> = (String) -> T
 typealias NextStepBlock = (HandlerState) -> String?
 typealias HandlerDslWrapper = () -> Handler

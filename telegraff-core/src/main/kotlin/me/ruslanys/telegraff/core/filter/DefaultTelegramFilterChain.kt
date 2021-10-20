@@ -15,21 +15,19 @@
  */
 package me.ruslanys.telegraff.core.filter
 
-import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dsl.HandlersFactory
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
 
 class DefaultTelegramFilterChain(
-    telegramApi: TelegramApi,
     handlersFactory: HandlersFactory,
-    handlersFilter: HandlersFilter = HandlersFilter(telegramApi, handlersFactory),
+    handlersFilter: HandlersFilter = HandlersFilter(handlersFactory),
 ) : TelegramFilterChain {
 
     private val iterator: Iterator<TelegramFilter> = listOf(
-        CancelFilter(telegramApi, handlersFilter),
+        CancelFilter(handlersFilter),
         handlersFilter,
-        UnresolvedMessageFilter(telegramApi),
+        UnresolvedMessageFilter(),
     ).iterator()
 
     // TODO entrypoint

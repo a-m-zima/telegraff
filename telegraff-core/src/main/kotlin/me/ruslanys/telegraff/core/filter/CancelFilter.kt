@@ -15,20 +15,22 @@
  */
 package me.ruslanys.telegraff.core.filter
 
-import me.ruslanys.telegraff.core.component.TelegramApi
 import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.dto.request.MarkdownMessage
 
-class CancelFilter(private val telegramApi: TelegramApi, private val handlersFilter: HandlersFilter) : TelegramFilter {
+class CancelFilter(private val handlersFilter: HandlersFilter) : TelegramFilter {
 
     override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
         val text = message.text?.lowercase() ?: ""
         if (text.startsWith("/cancel") || text.startsWith("отмена")) {
             handlersFilter.clearState(message.chat)
-            telegramApi.sendMessage(MarkdownMessage("Хорошо, давай начнем сначала", chatId = message.chat.id))
+            handleCancel(message)
         } else {
             chain.doFilter(message)
         }
     }
 
+    private fun handleCancel(message: TelegramMessage) {
+        // TODO
+        // MarkdownMessage("Хорошо, давай начнем сначала", chatId = message.chat.id)
+    }
 }
