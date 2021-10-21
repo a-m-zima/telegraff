@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dsl.Handler
-import me.ruslanys.telegraff.core.dsl.HandlerState
-import me.ruslanys.telegraff.core.dsl.HandlersFactory
+import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dsl.FormFactory
+import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.ValidationException
@@ -26,35 +26,34 @@ import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger { }
 
-class HandlersFilter(handlersFactory: HandlersFactory) : TelegramFilter {
+class FormMessageHandler(formFactory: FormFactory) : ConditionalMessageHandler {
 
-    private val handlers: Map<String, Handler> = handlersFactory.getHandlers()
-    private val states: MutableMap<Long, HandlerState> = ConcurrentHashMap()
+    private val forms: Map<String, Form> = formFactory.getStorage()
+    private val states: MutableMap<Long, FormState> = ConcurrentHashMap()
 
+    override fun isCanHandle(message: TelegramMessage): Boolean {
+        return null != findForm(message)
+    }
 
-    override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
-        val handler = findHandler(message)
-        if (handler == null) {
-            chain.doFilter(message)
-            return
-        }
+    override fun handle(message: TelegramMessage) {
+        val form = findForm(message)!!
 
         val state = states[message.chat.id]
 
         if (state == null) {
-            val newState = HandlerState(message.chat, handler)
+            val newState = FormState(message.chat, form)
             states[message.chat.id] = newState
 
             try {
                 handleQuestion(newState)
             } catch (e: Exception) {
-                handleFatalException(message, newState, e)
+                handleException(message, newState, e)
             }
         } else {
             try {
                 handleContinuation(state, message)
             } catch (e: Exception) {
-                handleFatalException(message, state, e)
+                handleException(message, state, e)
             }
         }
     }
@@ -63,7 +62,7 @@ class HandlersFilter(handlersFactory: HandlersFactory) : TelegramFilter {
         states.remove(chat.id)
     }
 
-    private fun handleContinuation(state: HandlerState, message: TelegramMessage) {
+    private fun handleContinuation(state: FormState, message: TelegramMessage) {
         val currentStep = state.currentStep!!
         val text = message.text!!
 
@@ -74,19 +73,19 @@ class HandlersFilter(handlersFactory: HandlersFactory) : TelegramFilter {
             validation(text)
         } catch (e: ValidationException) {
             // stop handling
-            return handleValidationException(message, state, e)
+            return handleException(message, state, e)
         }
         state.answers[currentStep.key] = answer
 
         // next step
         val nextStepKey = currentStep.next(state)
-        val nextStep = nextStepKey?.let { state.handler.getStepByKey(nextStepKey) }
+        val nextStep = nextStepKey?.let { state.form.getStepByKey(nextStepKey) }
         state.currentStep = nextStep
 
         handleQuestion(state)
     }
 
-    private fun handleQuestion(state: HandlerState) {
+    private fun handleQuestion(state: FormState) {
         val currentStep = state.currentStep
 
         if (currentStep != null) {
@@ -96,19 +95,19 @@ class HandlersFilter(handlersFactory: HandlersFactory) : TelegramFilter {
         }
     }
 
-    private fun handleFinalization(state: HandlerState) {
+    private fun handleFinalization(state: FormState) {
         clearState(state.chat)
-        state.handler.process(state, state.answers)
+        state.form.process(state, state.answers)
     }
 
-    private fun findHandler(message: TelegramMessage): Handler? {
+    private fun findForm(message: TelegramMessage): Form? {
         val state = states[message.chat.id]
         if (state != null) {
-            return state.handler
+            return state.form
         }
 
         val text = message.text?.lowercase() ?: return null
-        for (entry in handlers) {
+        for (entry in forms) {
             if (text.startsWith(entry.key)) {
                 return entry.value
             }
@@ -117,20 +116,15 @@ class HandlersFilter(handlersFactory: HandlersFactory) : TelegramFilter {
         return null
     }
 
-    private fun handleFatalException(message: TelegramMessage, newState: HandlerState, exception: Exception) {
-        logger.error(exception) { "Error during handler processing" }
+    private fun handleException(message: TelegramMessage, state: FormState, exception: Exception) {
+        logger.error(exception) { "Error during form processing" }
         clearState(message.chat)
         // TODO
         // MarkdownMessage("Что-то пошло не так :(")
-    }
-
-    private fun handleValidationException(
-        message: TelegramMessage,
-        newState: HandlerState,
-        exception: Exception
-    ) {
-        // TODO
-        // TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
-        // отправка question.replyKeyboard давала возможность в случае ошибки сохранить кнопки которые задавал вопрос
+        if (exception is ValidationException) {
+            // TODO
+            // TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
+            // отправка question.replyKeyboard давала возможность в случае ошибки сохранить кнопки которые задавал вопрос
+        }
     }
 }

@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-interface TelegramFilterChain {
+interface MessageHandler {
 
-    fun doFilter(message: TelegramMessage)
-
+    fun handle(message: TelegramMessage)
 }

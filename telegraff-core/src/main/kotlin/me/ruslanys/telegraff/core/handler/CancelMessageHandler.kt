@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-class CancelFilter(private val handlersFilter: HandlersFilter) : TelegramFilter {
-
-    override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
+class CancelMessageHandler(private val formHandler: FormMessageHandler) : ConditionalMessageHandler {
+    override fun isCanHandle(message: TelegramMessage): Boolean {
         val text = message.text?.lowercase() ?: ""
-        if (text.startsWith("/cancel") || text.startsWith("отмена")) {
-            handlersFilter.clearState(message.chat)
-            handleCancel(message)
-        } else {
-            chain.doFilter(message)
-        }
+        return text.startsWith("/cancel") || text.startsWith("отмена")
+    }
+
+    override fun handle(message: TelegramMessage) {
+        formHandler.clearState(message.chat)
+        handleCancel(message)
     }
 
     private fun handleCancel(message: TelegramMessage) {

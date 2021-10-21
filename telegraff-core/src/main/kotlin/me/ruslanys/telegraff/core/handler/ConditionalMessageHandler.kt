@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.exception
+package me.ruslanys.telegraff.core.handler
 
-open class HandlerException(override val message: String) : RuntimeException(message)
+import me.ruslanys.telegraff.core.dto.TelegramMessage
+
+interface ConditionalMessageHandler : MessageHandler {
+
+    fun isCanHandle(message: TelegramMessage): Boolean
+}

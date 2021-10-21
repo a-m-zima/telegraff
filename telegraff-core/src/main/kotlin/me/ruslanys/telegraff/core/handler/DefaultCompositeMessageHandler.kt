@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
+import mu.KotlinLogging
 
-interface TelegramFilter {
+private val logger = KotlinLogging.logger { }
 
-    fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain)
+class DefaultCompositeMessageHandler(
+    private val handlers: List<ConditionalMessageHandler>,
+    private val finalizer: MessageHandler,
+) : CompositeMessageHandler {
 
+    override fun handle(message: TelegramMessage) {
+        val handler: MessageHandler = handlers.firstOrNull { it.isCanHandle(message) } ?: finalizer
+        logger.debug { "message $message will be handled with ${handler::class.simpleName}" }
+        handler.handle(message)
+    }
 }

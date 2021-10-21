@@ -13,28 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dsl.HandlersFactory
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
+class UnresolvedMessageHandler : MessageHandler {
 
-class DefaultTelegramFilterChain(
-    handlersFactory: HandlersFactory,
-    handlersFilter: HandlersFilter = HandlersFilter(handlersFactory),
-) : TelegramFilterChain {
-
-    private val iterator: Iterator<TelegramFilter> = listOf(
-        CancelFilter(handlersFilter),
-        handlersFilter,
-        UnresolvedMessageFilter(),
-    ).iterator()
-
-    // TODO entrypoint
-    override fun doFilter(message: TelegramMessage) {
-        if (iterator.hasNext()) {
-            val filter = iterator.next()
-            filter.handleMessage(message, this)
+    override fun handle(message: TelegramMessage) {
+        if ("PRIVATE".equals(message.chat.type, true)) {
+            // TODO
+            // ответ на личное сообщение
+            /*val request = TelegramMessageSendRequest(
+                message.chat.id,
+                "Извини, я тебя не понимаю",
+                TelegramParseMode.MARKDOWN
+            )*/
         }
     }
 }

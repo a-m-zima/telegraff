@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.filter
+package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-class UnresolvedMessageFilter : TelegramFilter {
-
-    override fun handleMessage(message: TelegramMessage, chain: TelegramFilterChain) {
-        if ("PRIVATE".equals(message.chat.type, true)) {
-            // TODO
-            // ответ на личное сообщение
-            /*val request = TelegramMessageSendRequest(
-                message.chat.id,
-                "Извини, я тебя не понимаю",
-                TelegramParseMode.MARKDOWN
-            )*/
-        }
-    }
-
+fun interface CompositeMessageHandler {
+    fun handle(message: TelegramMessage)
 }
