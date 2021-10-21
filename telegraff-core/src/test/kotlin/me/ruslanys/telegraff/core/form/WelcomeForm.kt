@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.dsl
+package me.ruslanys.telegraff.core.form
 
-class Handler(
-        val commands: List<String>,
-        private val steps: Map<String, Step<*>>,
-        private val initialStepKey: String?,
-        val process: ProcessBlock
-) {
+import me.ruslanys.telegraff.core.dsl.Form
 
-    fun getInitialStep(): Step<*>? {
-        return if (initialStepKey != null) {
-            steps[initialStepKey]!!
-        } else {
-            null
-        }
+object WelcomeForm : Form(listOf("/start"), {
+
+    process { _, _ ->
+        //  MarkdownMessage("Привет!")
     }
-
-    fun getStepByKey(key: String): Step<*>? {
-        return steps[key]
-    }
-
-}
+})

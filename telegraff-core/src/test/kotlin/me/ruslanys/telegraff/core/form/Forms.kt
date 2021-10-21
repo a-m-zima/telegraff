@@ -13,10 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.dsl
+package me.ruslanys.telegraff.core.form
 
-interface HandlersFactory {
-
-    fun getHandlers(): Map<String, Handler>
-
-}
+val staticForms = listOf(
+    CounterForm,
+    HtmlForm,
+    MarkdownForm,
+    NameForm,
+    PhotoForm,
+    RestForm,
+    VoiceForm,
+    WelcomeForm,
+)

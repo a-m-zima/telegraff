@@ -15,31 +15,23 @@
  */
 package me.ruslanys.telegraff.core.dsl
 
-import org.slf4j.LoggerFactory
+class DefaultFormFactory(forms: List<Form>) : FormFactory {
 
-class DefaultHandlersFactory(handlers: List<Handler>) : HandlersFactory {
-
-    private val handlerStorage: MutableMap<String, Handler> = hashMapOf()
+    private val formStorage: MutableMap<String, Form> = hashMapOf()
 
     init {
-        handlers.forEach { addHandler(it) }
+        forms.forEach { add(it) }
     }
 
-    private fun addHandler(handler: Handler) {
-        for (rawCommand in handler.commands) {
+    private fun add(form: Form) {
+        for (rawCommand in form.commands) {
             val command = rawCommand.lowercase()
-            val previousValue = handlerStorage.put(command, handler)
+            val previousValue = formStorage.put(command, form)
             if (previousValue != null) {
                 throw IllegalArgumentException("$command is already in use.")
             }
         }
     }
 
-    override fun getHandlers(): Map<String, Handler> {
-        return handlerStorage
-    }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(DefaultHandlersFactory::class.java)
-    }
+    override fun getStorage(): Map<String, Form> = formStorage
 }

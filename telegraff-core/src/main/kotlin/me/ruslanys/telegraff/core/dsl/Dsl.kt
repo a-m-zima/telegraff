@@ -15,30 +15,19 @@
  */
 package me.ruslanys.telegraff.core.dsl
 
-import me.ruslanys.telegraff.core.exception.HandlerException
+import me.ruslanys.telegraff.core.annotation.TelegraffDsl
+import me.ruslanys.telegraff.core.exception.FormException
 
+@TelegraffDsl
+class FormDsl {
 
-fun handler(vararg commands: String, init: HandlerDsl.() -> Unit): HandlerDslWrapper {
-    return {
-        val dsl = HandlerDsl(commands.asList())
-        init(dsl) // handler.init()
-
-        dsl.build()
-    }
-}
-
-class HandlerDsl(private val commands: List<String>) {
-
-    private val stepDsls: MutableList<StepDsl<*>> = arrayListOf()
-    private var process: ProcessBlock? = null
+    internal val stepDslList: MutableList<StepDsl<*>> = arrayListOf()
+    internal var process: ProcessBlock? = null
 
 
     fun <T : Any> step(key: String, init: StepDsl<T>.() -> Unit): StepDsl<T> {
-        val dsl = StepDsl<T>(key)
-        init(dsl) // step.init()
-
-        stepDsls.add(dsl)
-
+        val dsl = StepDsl<T>(key).apply(init)
+        stepDslList += dsl
         return dsl
     }
 
@@ -46,14 +35,14 @@ class HandlerDsl(private val commands: List<String>) {
         this.process = processor
     }
 
-    internal fun build(): Handler {
-        val steps = arrayListOf<Step<*>>()
+    internal fun buildSteps(): Map<String, Step<*>> {
+        val steps: ArrayList<Step<*>> = arrayListOf()
 
-        for (i in 0 until stepDsls.size) {
-            val builder = stepDsls[i]
+        for (i in 0 until stepDslList.size) {
+            val builder = stepDslList[i]
             val step = builder.build {
-                if (i + 1 < stepDsls.size) {
-                    stepDsls[i + 1].key
+                if (i + 1 < stepDslList.size) {
+                    stepDslList[i + 1].key
                 } else {
                     null
                 }
@@ -61,16 +50,11 @@ class HandlerDsl(private val commands: List<String>) {
             steps.add(step)
         }
 
-
-        return Handler(
-            commands,
-            steps.associateBy { it.key },
-            stepDsls.firstOrNull()?.key,
-            process ?: throw HandlerException("Process block must not be null!")
-        )
+        return steps.associateBy { it.key }
     }
 }
 
+@TelegraffDsl
 class StepDsl<T : Any>(val key: String) {
 
     private var question: QuestionBlock? = null
@@ -94,7 +78,7 @@ class StepDsl<T : Any>(val key: String) {
     internal fun build(defaultNext: NextStepBlock): Step<T> {
         return Step(
             key,
-            question ?: throw HandlerException("Step question must not be null!"),
+            question ?: throw FormException("Step question must not be null!"),
             validation ?: {
                 @Suppress("UNCHECKED_CAST")
                 it as T
@@ -102,13 +86,11 @@ class StepDsl<T : Any>(val key: String) {
             next ?: defaultNext
         )
     }
-
 }
 
 
-typealias ProcessBlock = (state: HandlerState, answers: Map<String, Any>) -> Unit
+typealias ProcessBlock = (state: FormState, answers: Map<String, Any>) -> Unit
 
-typealias QuestionBlock = (HandlerState) -> Unit
+typealias QuestionBlock = (FormState) -> Unit
 typealias ValidationBlock<T> = (String) -> T
-typealias NextStepBlock = (HandlerState) -> String?
-typealias HandlerDslWrapper = () -> Handler
+typealias NextStepBlock = (FormState) -> String?
