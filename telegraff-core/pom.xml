@@ -13,6 +13,10 @@
     <groupId>com.github.xzima.telegraff</groupId>
     <artifactId>telegraff-core</artifactId>
 
+    <properties>
+        <kotest_version>4.6.3</kotest_version>
+    </properties>
+
     <dependencies>
         <!--ide -->
         <dependency>
@@ -33,9 +37,24 @@
             <scope>runtime</scope>
         </dependency>
         <!-- test -->
+        <!-- kotest https://kotest.io/ -->
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test-junit</artifactId>
+            <groupId>io.kotest</groupId>
+            <artifactId>kotest-runner-junit5-jvm</artifactId>
+            <version>${kotest_version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.mockk</groupId>
+                    <artifactId>mockk</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- mockk https://mockk.io/ -->
+        <dependency>
+            <groupId>io.mockk</groupId>
+            <artifactId>mockk</artifactId>
+            <version>1.12.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
