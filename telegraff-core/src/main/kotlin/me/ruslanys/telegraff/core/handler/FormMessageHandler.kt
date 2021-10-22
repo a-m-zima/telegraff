@@ -20,13 +20,17 @@ import me.ruslanys.telegraff.core.dsl.FormFactory
 import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.core.exception.FormExceptionHandler
 import me.ruslanys.telegraff.core.exception.ValidationException
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger { }
 
-class FormMessageHandler(formFactory: FormFactory) : ConditionalMessageHandler {
+class FormMessageHandler(
+    formFactory: FormFactory,
+    private val exceptionHandlers: List<FormExceptionHandler<out Exception>> = emptyList(),
+) : ConditionalMessageHandler {
 
     private val forms: Map<String, Form> = formFactory.getStorage()
     private val states: MutableMap<Long, FormState> = ConcurrentHashMap()
@@ -47,13 +51,13 @@ class FormMessageHandler(formFactory: FormFactory) : ConditionalMessageHandler {
             try {
                 handleQuestion(newState)
             } catch (e: Exception) {
-                handleException(message, newState, e)
+                handleFatalException(message, newState, e)
             }
         } else {
             try {
                 handleContinuation(state, message)
             } catch (e: Exception) {
-                handleException(message, state, e)
+                handleFatalException(message, state, e)
             }
         }
     }
@@ -116,15 +120,16 @@ class FormMessageHandler(formFactory: FormFactory) : ConditionalMessageHandler {
         return null
     }
 
-    private fun handleException(message: TelegramMessage, state: FormState, exception: Exception) {
+    private fun handleFatalException(message: TelegramMessage, state: FormState, exception: Exception) {
         logger.error(exception) { "Error during form processing" }
         clearState(message.chat)
-        // TODO
-        // MarkdownMessage("Что-то пошло не так :(")
-        if (exception is ValidationException) {
-            // TODO
-            // TelegramMessageSendRequest(0, e.message, TelegramParseMode.MARKDOWN, question.replyKeyboard)
-            // отправка question.replyKeyboard давала возможность в случае ошибки сохранить кнопки которые задавал вопрос
-        }
+
+        handleException(message, state, exception)
+    }
+
+    private fun handleException(message: TelegramMessage, state: FormState, exception: Exception) {
+        exceptionHandlers.firstOrNull { it.canHandle(exception) }
+            ?.uncheckHandleException(message, state, exception)
+            ?: logger.error(exception) { "Error on message=$message not handled" }
     }
 }

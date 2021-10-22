@@ -19,12 +19,10 @@ import me.ruslanys.telegraff.core.dto.TelegramChat
 import java.util.concurrent.ConcurrentHashMap
 
 class FormState(
-        val chat: TelegramChat,
-        val form: Form
+    val chat: TelegramChat,
+    val form: Form,
 ) {
-
     var currentStep: Step<*>? = form.getInitialStep()
     val answers: MutableMap<String, Any> = ConcurrentHashMap()
     val attributes: MutableMap<String, Any> = ConcurrentHashMap()
-
 }
