@@ -38,23 +38,32 @@ class IntegrationTest : IntegrationSpec({
         clearMocks(telegramApi)
     }
 
-    "test" {
+    "Позитивный сценарий заказа такси" - {
+        "Инициализация" {
+            handleMessage(message("такси"))
 
-        handleMessage(message("такси"))
-        handleMessage(message("Дом"))
-        handleMessage(message("Работа"))
-        handleMessage(message("картой"))
+            tgMessage shouldContainExactly listOf("Откуда поедем?")
+        }
+        "Первый вопрос" {
+            handleMessage(message("Дом"))
 
-        tgMessage shouldContainExactly listOf(
-            "Откуда поедем?",
-            "Куда поедем?",
-            "Оплата картой или наличкой?",
-            """
-            Заказ принят от пользователя #123.
-            Поедем из Дом в Работа. Оплата CARD.
-            """.trimIndent()
-        )
+            tgMessage shouldContainExactly listOf("Куда поедем?")
+        }
+        "Второй вопрос" {
+            handleMessage(message("Работа"))
 
+            tgMessage shouldContainExactly listOf("Оплата картой или наличкой?")
+        }
+        "Последний вопрос и проверка результата" {
+            handleMessage(message("картой"))
+
+            tgMessage shouldContainExactly listOf(
+                """
+                Заказ принят от пользователя #123.
+                Поедем из Дом в Работа. Оплата CARD.
+                """.trimIndent()
+            )
+        }
     }
 })
 
