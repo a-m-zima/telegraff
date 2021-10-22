@@ -29,7 +29,7 @@ import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.form.PaymentMethod
 import me.ruslanys.telegraff.core.form.TaxiForm
-import me.ruslanys.telegraff.core.form.TelegramApi
+import me.ruslanys.telegraff.core.service.TelegramApi
 
 class TaxiFormTests : FreeSpec({
 

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core
+package me.ruslanys.telegraff.core.spec
 
 import io.kotest.core.spec.style.FreeSpec
 import me.ruslanys.telegraff.core.dsl.DefaultFormFactory

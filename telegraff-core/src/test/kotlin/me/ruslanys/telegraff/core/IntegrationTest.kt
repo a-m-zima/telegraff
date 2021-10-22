@@ -19,15 +19,21 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.clearMocks
 import io.mockk.justRun
 import io.mockk.mockk
+import me.ruslanys.telegraff.core.dsl.DefaultFormFactory
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.form.TaxiForm
-import me.ruslanys.telegraff.core.form.TelegramApi
+import me.ruslanys.telegraff.core.service.TelegramApi
+import me.ruslanys.telegraff.core.handler.ValidationExceptionHandler
 import me.ruslanys.telegraff.core.form.staticForms
+import me.ruslanys.telegraff.core.handler.FormMessageHandler
+import me.ruslanys.telegraff.core.spec.IntegrationSpec
 
 class IntegrationTest : IntegrationSpec({
     val telegramApi = mockk<TelegramApi>()
     forms = staticForms + TaxiForm(telegramApi)
+    formFactory = DefaultFormFactory(forms)
+    formHandler = FormMessageHandler(formFactory, listOf(ValidationExceptionHandler(telegramApi)))
     lateinit var tgMessage: MutableList<String>
 
     beforeEach {
@@ -53,6 +59,12 @@ class IntegrationTest : IntegrationSpec({
             handleMessage(message("Работа"))
 
             tgMessage shouldContainExactly listOf("Оплата картой или наличкой?")
+        }
+
+        "Даём неверный ответ" {
+            handleMessage(message("Какая то дич"))
+
+            tgMessage shouldContainExactly listOf("Пожалуйста, выбери один из вариантов")
         }
         "Последний вопрос и проверка результата" {
             handleMessage(message("картой"))

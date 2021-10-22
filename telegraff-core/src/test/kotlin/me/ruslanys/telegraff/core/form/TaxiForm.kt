@@ -17,13 +17,10 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.exception.ValidationException
+import me.ruslanys.telegraff.core.service.TelegramApi
 
 enum class PaymentMethod {
     CARD, CASH
-}
-
-interface TelegramApi {
-    fun sendMessage(message: String)
 }
 
 class TaxiForm(telegramApi: TelegramApi) : Form(listOf("/taxi", "такси"), {
