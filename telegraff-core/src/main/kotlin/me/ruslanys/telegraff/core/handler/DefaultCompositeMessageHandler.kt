@@ -22,7 +22,7 @@ private val logger = KotlinLogging.logger { }
 
 class DefaultCompositeMessageHandler(
     private val handlers: List<ConditionalMessageHandler>,
-    private val finalizer: MessageHandler,
+    private val finalizer: MessageHandler = MessageHandler {},
 ) : CompositeMessageHandler {
 
     override fun handle(message: TelegramMessage) {

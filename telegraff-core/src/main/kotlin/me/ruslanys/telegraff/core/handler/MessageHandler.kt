@@ -17,7 +17,7 @@ package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-interface MessageHandler {
+fun interface MessageHandler {
 
     fun handle(message: TelegramMessage)
 }

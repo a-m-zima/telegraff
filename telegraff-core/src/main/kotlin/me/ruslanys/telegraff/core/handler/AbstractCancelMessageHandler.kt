@@ -16,18 +16,28 @@
 package me.ruslanys.telegraff.core.handler
 
 import me.ruslanys.telegraff.core.dto.TelegramMessage
+import mu.KotlinLogging
 
-class UnresolvedMessageHandler : MessageHandler {
+
+private val logger = KotlinLogging.logger { }
+
+abstract class AbstractCancelMessageHandler(
+    private val formHandler: FormMessageHandler,
+    private val cancelCommands: List<String>,
+) : ConditionalMessageHandler {
+
+    override fun isCanHandle(message: TelegramMessage): Boolean {
+        logger.debug { "Check message=$message for cancel state handler" }
+        val messageText = message.text ?: return false
+
+        return cancelCommands.any { messageText.startsWith(it, ignoreCase = true) }
+    }
 
     override fun handle(message: TelegramMessage) {
-        if ("PRIVATE".equals(message.chat.type, true)) {
-            // TODO
-            // ответ на личное сообщение
-            /*val request = TelegramMessageSendRequest(
-                message.chat.id,
-                "Извини, я тебя не понимаю",
-                TelegramParseMode.MARKDOWN
-            )*/
-        }
+        logger.debug { "Message=$message cancel state" }
+        formHandler.clearState(message.chat)
+        cancelHandler(message)
     }
+
+    abstract fun cancelHandler(message: TelegramMessage)
 }

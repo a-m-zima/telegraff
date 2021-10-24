@@ -15,8 +15,7 @@
  */
 package me.ruslanys.telegraff.core.dsl
 
-interface FormFactory {
+fun interface FormFactory {
 
     fun getStorage(): Map<String, Form>
-
 }

@@ -20,7 +20,7 @@ import me.ruslanys.telegraff.core.dsl.FormFactory
 import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.exception.FormExceptionHandler
+import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
 import me.ruslanys.telegraff.core.exception.ValidationException
 import mu.KotlinLogging
 import java.util.concurrent.ConcurrentHashMap
@@ -29,7 +29,7 @@ private val logger = KotlinLogging.logger { }
 
 class FormMessageHandler(
     formFactory: FormFactory,
-    private val exceptionHandlers: List<FormExceptionHandler<out Exception>> = emptyList(),
+    private val exceptionHandlers: List<AbstractFormExceptionHandler<out Exception>> = emptyList(),
 ) : ConditionalMessageHandler {
 
     private val forms: Map<String, Form> = formFactory.getStorage()

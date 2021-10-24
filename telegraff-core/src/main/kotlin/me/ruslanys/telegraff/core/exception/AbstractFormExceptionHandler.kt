@@ -13,23 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.handler
+package me.ruslanys.telegraff.core.exception
 
+import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramMessage
+import java.lang.reflect.ParameterizedType
 
-class CancelMessageHandler(private val formHandler: FormMessageHandler) : ConditionalMessageHandler {
-    override fun isCanHandle(message: TelegramMessage): Boolean {
-        val text = message.text?.lowercase() ?: ""
-        return text.startsWith("/cancel") || text.startsWith("отмена")
+abstract class AbstractFormExceptionHandler<T : Exception> {
+
+    fun canHandle(exception: Exception): Boolean {
+        return (this::class.java.genericSuperclass as ParameterizedType)
+            .actualTypeArguments.first() == exception::class.java
     }
 
-    override fun handle(message: TelegramMessage) {
-        formHandler.clearState(message.chat)
-        handleCancel(message)
-    }
+    abstract fun handleException(message: TelegramMessage, state: FormState, exception: T)
 
-    private fun handleCancel(message: TelegramMessage) {
-        // TODO
-        // MarkdownMessage("Хорошо, давай начнем сначала", chatId = message.chat.id)
+    @Suppress("UNCHECKED_CAST")
+    internal fun uncheckHandleException(message: TelegramMessage, state: FormState, exception: Exception) {
+        handleException(message, state, exception as T)
     }
 }
+
