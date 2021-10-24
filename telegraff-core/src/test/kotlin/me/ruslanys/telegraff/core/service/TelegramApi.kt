@@ -16,5 +16,5 @@
 package me.ruslanys.telegraff.core.service
 
 interface TelegramApi {
-    fun sendMessage(message: String)
+    fun sendMessage(chatId: Long, message: String)
 }

@@ -23,10 +23,9 @@ import me.ruslanys.telegraff.core.dsl.DefaultFormFactory
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.form.TaxiForm
-import me.ruslanys.telegraff.core.service.TelegramApi
-import me.ruslanys.telegraff.core.handler.ValidationExceptionHandler
 import me.ruslanys.telegraff.core.form.staticForms
-import me.ruslanys.telegraff.core.handler.FormMessageHandler
+import me.ruslanys.telegraff.core.handler.*
+import me.ruslanys.telegraff.core.service.TelegramApi
 import me.ruslanys.telegraff.core.spec.IntegrationSpec
 
 class IntegrationTest : IntegrationSpec({
@@ -34,11 +33,17 @@ class IntegrationTest : IntegrationSpec({
     forms = staticForms + TaxiForm(telegramApi)
     formFactory = DefaultFormFactory(forms)
     formHandler = FormMessageHandler(formFactory, listOf(ValidationExceptionHandler(telegramApi)))
+    val cancelHandler = CancelMessageHandler(formHandler, telegramApi)
+    compositeHandler = DefaultCompositeMessageHandler(
+        listOf(cancelHandler, formHandler),
+        FinalMessageHandler(telegramApi)
+    )
+
     lateinit var tgMessage: MutableList<String>
 
     beforeEach {
         tgMessage = mutableListOf()
-        justRun { telegramApi.sendMessage(capture(tgMessage)) }
+        justRun { telegramApi.sendMessage(123, capture(tgMessage)) }
     }
     afterEach {
         clearMocks(telegramApi)
@@ -46,6 +51,21 @@ class IntegrationTest : IntegrationSpec({
 
     "Позитивный сценарий заказа такси" - {
         "Инициализация" {
+            handleMessage(message("такси"))
+
+            tgMessage shouldContainExactly listOf("Откуда поедем?")
+        }
+        "Отменяем" {
+            handleMessage(message("отмена"))
+
+            tgMessage shouldContainExactly listOf("Хорошо, давай начнем сначала")
+        }
+        "Проверяем что нельзя продолжить" {
+            handleMessage(message("Дом"))
+
+            tgMessage shouldContainExactly listOf("Извини, я тебя не понимаю")
+        }
+        "Повторная инициализация" {
             handleMessage(message("такси"))
 
             tgMessage shouldContainExactly listOf("Откуда поедем?")
@@ -60,7 +80,6 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Оплата картой или наличкой?")
         }
-
         "Даём неверный ответ" {
             handleMessage(message("Какая то дич"))
 

@@ -26,19 +26,19 @@ enum class PaymentMethod {
 class TaxiForm(telegramApi: TelegramApi) : Form(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
         question {
-            telegramApi.sendMessage("Откуда поедем?")
+            telegramApi.sendMessage(it.chat.id, "Откуда поедем?")
         }
     }
 
     step<String>("locationTo") {
         question {
-            telegramApi.sendMessage("Куда поедем?")
+            telegramApi.sendMessage(it.chat.id, "Куда поедем?")
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
         question {
-            telegramApi.sendMessage("Оплата картой или наличкой?")
+            telegramApi.sendMessage(it.chat.id, "Оплата картой или наличкой?")
         }
 
         validation {
@@ -58,6 +58,7 @@ class TaxiForm(telegramApi: TelegramApi) : Form(listOf("/taxi", "такси"), {
         // Business logic
 
         telegramApi.sendMessage(
+            state.chat.id,
             """
             Заказ принят от пользователя #${state.chat.id}.
             Поедем из $from в $to. Оплата $paymentMethod.

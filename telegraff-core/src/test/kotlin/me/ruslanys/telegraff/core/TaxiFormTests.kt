@@ -38,7 +38,7 @@ class TaxiFormTests : FreeSpec({
 
     beforeEach {
         tgMessage = slot()
-        justRun { telegramApi.sendMessage(capture(tgMessage)) }
+        justRun { telegramApi.sendMessage(-1, capture(tgMessage)) }
     }
     afterEach {
         clearMocks(telegramApi)

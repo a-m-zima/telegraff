@@ -19,17 +19,14 @@ import io.kotest.core.spec.style.FreeSpec
 import me.ruslanys.telegraff.core.dsl.DefaultFormFactory
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.handler.CancelMessageHandler
 import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
 import me.ruslanys.telegraff.core.handler.FormMessageHandler
-import me.ruslanys.telegraff.core.handler.UnresolvedMessageHandler
 
 abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
     lateinit var forms: List<Form>
     lateinit var formFactory: DefaultFormFactory
 
     lateinit var formHandler: FormMessageHandler
-    lateinit var cancelHandler: CancelMessageHandler
 
     lateinit var compositeHandler: DefaultCompositeMessageHandler
 
@@ -44,14 +41,8 @@ abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
         if (::formHandler.isInitialized.not()) {
             formHandler = FormMessageHandler(formFactory)
         }
-        if (::cancelHandler.isInitialized.not()) {
-            cancelHandler = CancelMessageHandler(formHandler)
-        }
         if (::compositeHandler.isInitialized.not()) {
-            compositeHandler = DefaultCompositeMessageHandler(
-                listOf(cancelHandler, formHandler),
-                UnresolvedMessageHandler(),
-            )
+            compositeHandler = DefaultCompositeMessageHandler(listOf(formHandler))
         }
     }
 

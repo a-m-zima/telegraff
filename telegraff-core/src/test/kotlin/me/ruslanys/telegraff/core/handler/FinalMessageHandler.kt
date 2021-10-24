@@ -15,17 +15,12 @@
  */
 package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
-import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.service.TelegramApi
 
-class ValidationExceptionHandler(
-    private val telegramApi: TelegramApi,
-) : AbstractFormExceptionHandler<ValidationException>() {
+class FinalMessageHandler(private val telegramApi: TelegramApi) : MessageHandler {
 
-    override fun handleException(message: TelegramMessage, state: FormState, exception: ValidationException) {
-        telegramApi.sendMessage(state.chat.id, exception.message)
+    override fun handle(message: TelegramMessage) {
+        telegramApi.sendMessage(message.chat.id, "Извини, я тебя не понимаю")
     }
 }
