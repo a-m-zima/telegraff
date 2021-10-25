@@ -15,38 +15,34 @@
  */
 package me.ruslanys.telegraff.core.handler
 
+import me.ruslanys.telegraff.core.data.FormStateStorage
+import me.ruslanys.telegraff.core.data.FormStorage
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dsl.FormFactory
 import me.ruslanys.telegraff.core.dsl.FormState
-import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
 import me.ruslanys.telegraff.core.exception.ValidationException
 import mu.KotlinLogging
-import java.util.concurrent.ConcurrentHashMap
 
 private val logger = KotlinLogging.logger { }
 
 class FormMessageHandler(
-    formFactory: FormFactory,
+    private val formStorage: FormStorage,
+    private val formStateStorage: FormStateStorage,
     private val exceptionHandlers: List<AbstractFormExceptionHandler<out Exception>> = emptyList(),
 ) : ConditionalMessageHandler {
 
-    private val forms: Map<String, Form> = formFactory.getStorage()
-    private val states: MutableMap<Long, FormState> = ConcurrentHashMap()
-
     override fun isCanHandle(message: TelegramMessage): Boolean {
-        return null != findForm(message)
+        return formStateStorage.existByMessage(message) || formStorage.existByMessage(message)
     }
 
     override fun handle(message: TelegramMessage) {
-        val form = findForm(message)!!
+        val form = findForm(message)
 
-        val state = states[message.chat.id]
+        val state = formStateStorage.findByMessage(message)
 
         if (state == null) {
-            val newState = FormState(message.chat, form)
-            states[message.chat.id] = newState
+            val newState = formStateStorage.create(message, form)
 
             try {
                 handleQuestion(newState)
@@ -62,10 +58,6 @@ class FormMessageHandler(
         }
     }
 
-    fun clearState(chat: TelegramChat) {
-        states.remove(chat.id)
-    }
-
     private fun handleContinuation(state: FormState, message: TelegramMessage) {
         val currentStep = state.currentStep!!
         val text = message.text!!
@@ -79,9 +71,11 @@ class FormMessageHandler(
             // stop handling
             return handleException(message, state, e)
         }
+        // TODO save answer
         state.answers[currentStep.key] = answer
 
         // next step
+        // TODO set next step
         val nextStepKey = currentStep.next(state)
         val nextStep = nextStepKey?.let { state.form.getStepByKey(nextStepKey) }
         state.currentStep = nextStep
@@ -100,29 +94,23 @@ class FormMessageHandler(
     }
 
     private fun handleFinalization(state: FormState) {
-        clearState(state.chat)
         state.form.process(state, state.answers)
+        formStateStorage.remove(state)
+        // TODO remove answers
     }
 
-    private fun findForm(message: TelegramMessage): Form? {
-        val state = states[message.chat.id]
+    private fun findForm(message: TelegramMessage): Form {
+        val state = formStateStorage.findByMessage(message)
         if (state != null) {
             return state.form
         }
 
-        val text = message.text?.lowercase() ?: return null
-        for (entry in forms) {
-            if (text.startsWith(entry.key)) {
-                return entry.value
-            }
-        }
-
-        return null
+        return formStorage.findByMessage(message)!!
     }
 
     private fun handleFatalException(message: TelegramMessage, state: FormState, exception: Exception) {
         logger.error(exception) { "Error during form processing" }
-        clearState(message.chat)
+        formStateStorage.removeByMessage(message)
 
         handleException(message, state, exception)
     }

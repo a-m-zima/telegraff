@@ -24,5 +24,4 @@ class FormState(
 ) {
     var currentStep: Step<*>? = form.getInitialStep()
     val answers: MutableMap<String, Any> = ConcurrentHashMap()
-    val attributes: MutableMap<String, Any> = ConcurrentHashMap()
 }

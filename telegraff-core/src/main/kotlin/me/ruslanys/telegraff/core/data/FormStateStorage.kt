@@ -13,25 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.dsl
+package me.ruslanys.telegraff.core.data
 
-class DefaultFormFactory(forms: List<Form>) : FormFactory {
+import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dsl.FormState
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-    private val formStorage: MutableMap<String, Form> = hashMapOf()
+interface FormStateStorage {
 
-    init {
-        forms.forEach { add(it) }
-    }
+    fun create(message: TelegramMessage, form: Form): FormState
 
-    private fun add(form: Form) {
-        for (rawCommand in form.commands) {
-            val command = rawCommand.lowercase()
-            val previousValue = formStorage.put(command, form)
-            if (previousValue != null) {
-                throw IllegalArgumentException("$command is already in use.")
-            }
-        }
-    }
+    fun existByMessage(message: TelegramMessage): Boolean
 
-    override fun getStorage(): Map<String, Form> = formStorage
+    fun findByMessage(message: TelegramMessage): FormState?
+
+    fun removeByMessage(message: TelegramMessage)
+    fun remove(state: FormState)
 }

@@ -19,7 +19,8 @@ import io.kotest.matchers.collections.shouldContainExactly
 import io.mockk.clearMocks
 import io.mockk.justRun
 import io.mockk.mockk
-import me.ruslanys.telegraff.core.dsl.DefaultFormFactory
+import me.ruslanys.telegraff.core.data.InmemoryFormStateStorage
+import me.ruslanys.telegraff.core.data.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.form.TaxiForm
@@ -30,10 +31,16 @@ import me.ruslanys.telegraff.core.spec.IntegrationSpec
 
 class IntegrationTest : IntegrationSpec({
     val telegramApi = mockk<TelegramApi>()
+    val formStateStorage = InmemoryFormStateStorage()
+
     forms = staticForms + TaxiForm(telegramApi)
-    formFactory = DefaultFormFactory(forms)
-    formHandler = FormMessageHandler(formFactory, listOf(ValidationExceptionHandler(telegramApi)))
-    val cancelHandler = CancelMessageHandler(formHandler, telegramApi)
+    formStorage = InmemoryFormStorage(forms)
+    formHandler = FormMessageHandler(
+        formStorage,
+        formStateStorage,
+        listOf(ValidationExceptionHandler(telegramApi))
+    )
+    val cancelHandler = CancelMessageHandler(formStateStorage, telegramApi)
     compositeHandler = DefaultCompositeMessageHandler(
         listOf(cancelHandler, formHandler),
         FinalMessageHandler(telegramApi)

@@ -16,7 +16,8 @@
 package me.ruslanys.telegraff.core.spec
 
 import io.kotest.core.spec.style.FreeSpec
-import me.ruslanys.telegraff.core.dsl.DefaultFormFactory
+import me.ruslanys.telegraff.core.data.InmemoryFormStateStorage
+import me.ruslanys.telegraff.core.data.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
@@ -24,7 +25,7 @@ import me.ruslanys.telegraff.core.handler.FormMessageHandler
 
 abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
     lateinit var forms: List<Form>
-    lateinit var formFactory: DefaultFormFactory
+    lateinit var formStorage: InmemoryFormStorage
 
     lateinit var formHandler: FormMessageHandler
 
@@ -35,11 +36,14 @@ abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
         if (::forms.isInitialized.not()) {
             forms = listOf()
         }
-        if (::formFactory.isInitialized.not()) {
-            formFactory = DefaultFormFactory(forms)
+        if (::formStorage.isInitialized.not()) {
+            formStorage = InmemoryFormStorage(forms)
         }
         if (::formHandler.isInitialized.not()) {
-            formHandler = FormMessageHandler(formFactory)
+            formHandler = FormMessageHandler(
+                formStorage,
+                InmemoryFormStateStorage(),
+            )
         }
         if (::compositeHandler.isInitialized.not()) {
             compositeHandler = DefaultCompositeMessageHandler(listOf(formHandler))

@@ -15,6 +15,7 @@
  */
 package me.ruslanys.telegraff.core.handler
 
+import me.ruslanys.telegraff.core.data.FormStateStorage
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import mu.KotlinLogging
 
@@ -22,7 +23,7 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger { }
 
 abstract class AbstractCancelMessageHandler(
-    private val formHandler: FormMessageHandler,
+    private val formStateStorage: FormStateStorage,
     private val cancelCommands: List<String>,
 ) : ConditionalMessageHandler {
 
@@ -35,7 +36,7 @@ abstract class AbstractCancelMessageHandler(
 
     override fun handle(message: TelegramMessage) {
         logger.debug { "Message=$message cancel state" }
-        formHandler.clearState(message.chat)
+        formStateStorage.removeByMessage(message)
         cancelHandler(message)
     }
 

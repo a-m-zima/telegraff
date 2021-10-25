@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.dsl
+package me.ruslanys.telegraff.core.data
 
-fun interface FormFactory {
+import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-    fun getStorage(): Map<String, Form>
+interface FormStorage {
+
+    fun findByMessage(message: TelegramMessage): Form?
+
+    fun existByMessage(message: TelegramMessage): Boolean
 }
