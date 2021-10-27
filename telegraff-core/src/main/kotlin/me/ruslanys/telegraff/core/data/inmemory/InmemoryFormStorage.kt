@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.data
+package me.ruslanys.telegraff.core.data.inmemory
 
+import me.ruslanys.telegraff.core.data.FormStorage
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-class InmemoryFormStorage(forms: List<Form>) : FormStorage {
+class InmemoryFormStorage(forms: List<Form<InmemoryFormState>>) : FormStorage<InmemoryFormState> {
 
-    private val forms: MutableMap<String, Form> = hashMapOf()
+    private val forms: MutableMap<String, Form<InmemoryFormState>> = hashMapOf()
 
     init {
         for (form in forms) {
@@ -33,7 +34,7 @@ class InmemoryFormStorage(forms: List<Form>) : FormStorage {
         }
     }
 
-    override fun findByMessage(message: TelegramMessage): Form? {
+    override fun findByMessage(message: TelegramMessage): Form<InmemoryFormState>? {
         val messageText = message.text?.lowercase() ?: return null
         val item = forms.entries.firstOrNull {
             messageText.startsWith(it.key)

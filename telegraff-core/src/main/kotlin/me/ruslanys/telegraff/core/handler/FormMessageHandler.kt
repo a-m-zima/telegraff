@@ -15,10 +15,10 @@
  */
 package me.ruslanys.telegraff.core.handler
 
+import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.data.FormStateStorage
 import me.ruslanys.telegraff.core.data.FormStorage
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
 import me.ruslanys.telegraff.core.exception.ValidationException
@@ -26,10 +26,10 @@ import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
-class FormMessageHandler(
-    private val formStorage: FormStorage,
-    private val formStateStorage: FormStateStorage,
-    private val exceptionHandlers: List<AbstractFormExceptionHandler<out Exception>> = emptyList(),
+class FormMessageHandler<ST : FormState<ST>>(
+    private val formStorage: FormStorage<ST>,
+    private val formStateStorage: FormStateStorage<ST>,
+    private val exceptionHandlers: List<AbstractFormExceptionHandler<out Exception, ST>> = emptyList(),
 ) : ConditionalMessageHandler {
 
     override fun isCanHandle(message: TelegramMessage): Boolean {
@@ -58,7 +58,7 @@ class FormMessageHandler(
         }
     }
 
-    private fun handleContinuation(state: FormState, message: TelegramMessage) {
+    private fun handleContinuation(state: ST, message: TelegramMessage) {
         val currentStep = state.currentStep!!
         val text = message.text!!
 
@@ -71,19 +71,16 @@ class FormMessageHandler(
             // stop handling
             return handleException(message, state, e)
         }
-        // TODO save answer
-        state.answers[currentStep.key] = answer
+
+        formStateStorage.storeAnswer(state, currentStep.key, answer)
 
         // next step
-        // TODO set next step
-        val nextStepKey = currentStep.next(state)
-        val nextStep = nextStepKey?.let { state.form.getStepByKey(nextStepKey) }
-        state.currentStep = nextStep
+        formStateStorage.doNextStep(state)
 
         handleQuestion(state)
     }
 
-    private fun handleQuestion(state: FormState) {
+    private fun handleQuestion(state: ST) {
         val currentStep = state.currentStep
 
         if (currentStep != null) {
@@ -93,13 +90,12 @@ class FormMessageHandler(
         }
     }
 
-    private fun handleFinalization(state: FormState) {
-        state.form.process(state, state.answers)
+    private fun handleFinalization(state: ST) {
+        state.form.process(state)
         formStateStorage.remove(state)
-        // TODO remove answers
     }
 
-    private fun findForm(message: TelegramMessage): Form {
+    private fun findForm(message: TelegramMessage): Form<ST> {
         val state = formStateStorage.findByMessage(message)
         if (state != null) {
             return state.form
@@ -108,14 +104,14 @@ class FormMessageHandler(
         return formStorage.findByMessage(message)!!
     }
 
-    private fun handleFatalException(message: TelegramMessage, state: FormState, exception: Exception) {
+    private fun handleFatalException(message: TelegramMessage, state: ST, exception: Exception) {
         logger.error(exception) { "Error during form processing" }
         formStateStorage.removeByMessage(message)
 
         handleException(message, state, exception)
     }
 
-    private fun handleException(message: TelegramMessage, state: FormState, exception: Exception) {
+    private fun handleException(message: TelegramMessage, state: ST, exception: Exception) {
         exceptionHandlers.firstOrNull { it.canHandle(exception) }
             ?.uncheckHandleException(message, state, exception)
             ?: logger.error(exception) { "Error on message=$message not handled" }

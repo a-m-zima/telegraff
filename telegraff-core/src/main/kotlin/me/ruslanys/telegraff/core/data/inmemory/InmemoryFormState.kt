@@ -13,24 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.data
+package me.ruslanys.telegraff.core.data.inmemory
 
+import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.core.dsl.Step
+import me.ruslanys.telegraff.core.dto.TelegramChat
+import java.util.concurrent.ConcurrentHashMap
 
-interface FormStateStorage<ST : FormState<ST>> {
+data class InmemoryFormState(
+    val chat: TelegramChat,
+    override val form: Form<InmemoryFormState>,
+) : FormState<InmemoryFormState> {
 
-    fun create(message: TelegramMessage, form: Form<ST>): ST
+    override val currentStepKey: String? get() = currentStep?.key
 
-    fun existByMessage(message: TelegramMessage): Boolean
+    override var currentStep: Step<*, InmemoryFormState>? = form.getInitialStep()
 
-    fun findByMessage(message: TelegramMessage): ST?
-
-    fun removeByMessage(message: TelegramMessage)
-
-    fun remove(state: ST)
-
-    fun storeAnswer(state: ST, formStepKey: String, answer: Any)
-
-    fun doNextStep(state: ST)
+    val answers: MutableMap<String, Any> = ConcurrentHashMap()
 }

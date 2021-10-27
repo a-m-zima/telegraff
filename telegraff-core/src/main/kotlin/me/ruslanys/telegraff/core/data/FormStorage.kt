@@ -18,9 +18,9 @@ package me.ruslanys.telegraff.core.data
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-interface FormStorage {
+interface FormStorage<ST : FormState<ST>> {
 
-    fun findByMessage(message: TelegramMessage): Form?
+    fun findByMessage(message: TelegramMessage): Form<ST>?
 
     fun existByMessage(message: TelegramMessage): Boolean
 }

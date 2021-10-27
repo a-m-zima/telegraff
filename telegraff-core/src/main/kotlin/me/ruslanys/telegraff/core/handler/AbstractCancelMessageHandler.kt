@@ -23,7 +23,7 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger { }
 
 abstract class AbstractCancelMessageHandler(
-    private val formStateStorage: FormStateStorage,
+    private val formStateStorage: FormStateStorage<*>,
     private val cancelCommands: List<String>,
 ) : ConditionalMessageHandler {
 

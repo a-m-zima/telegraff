@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.dsl
+package me.ruslanys.telegraff.core.data
 
-import me.ruslanys.telegraff.core.dto.TelegramChat
-import java.util.concurrent.ConcurrentHashMap
+import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dsl.Step
 
-class FormState(
-    val chat: TelegramChat,
-    val form: Form,
-) {
-    var currentStep: Step<*>? = form.getInitialStep()
-    val answers: MutableMap<String, Any> = ConcurrentHashMap()
+interface FormState<ST : FormState<ST>> {
+
+    val form: Form<ST>
+
+    val currentStepKey: String?
+
+    val currentStep: Step<*, ST>? get() = currentStepKey?.let { form.getStepByKey(it) }
 }

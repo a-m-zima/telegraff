@@ -16,27 +16,28 @@
 package me.ruslanys.telegraff.core.dsl
 
 import me.ruslanys.telegraff.core.annotation.TelegraffDsl
+import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.exception.FormException
 
 @TelegraffDsl
-class FormDsl {
+class FormDsl<ST : FormState<ST>> {
 
-    internal val stepDslList: MutableList<StepDsl<*>> = arrayListOf()
-    internal var process: ProcessBlock? = null
+    internal val stepDslList: MutableList<StepDsl<*, ST>> = arrayListOf()
+    internal var process: ProcessBlock<ST>? = null
 
 
-    fun <T : Any> step(key: String, init: StepDsl<T>.() -> Unit): StepDsl<T> {
-        val dsl = StepDsl<T>(key).apply(init)
+    fun <T : Any> step(key: String, init: StepDsl<T, ST>.() -> Unit): StepDsl<T, ST> {
+        val dsl = StepDsl<T, ST>(key).apply(init)
         stepDslList += dsl
         return dsl
     }
 
-    fun process(processor: ProcessBlock) {
+    fun process(processor: ProcessBlock<ST>) {
         this.process = processor
     }
 
-    internal fun buildSteps(): Map<String, Step<*>> {
-        val steps: ArrayList<Step<*>> = arrayListOf()
+    internal fun buildSteps(): Map<String, Step<*, ST>> {
+        val steps: ArrayList<Step<*, ST>> = arrayListOf()
 
         for (i in 0 until stepDslList.size) {
             val builder = stepDslList[i]
@@ -55,15 +56,15 @@ class FormDsl {
 }
 
 @TelegraffDsl
-class StepDsl<T : Any>(val key: String) {
+class StepDsl<T : Any, ST : FormState<ST>>(val key: String) {
 
-    private var question: QuestionBlock? = null
+    private var question: QuestionBlock<ST>? = null
 
     private var validation: ValidationBlock<T>? = null
-    private var next: NextStepBlock? = null
+    private var next: NextStepBlock<ST>? = null
 
 
-    fun question(question: QuestionBlock) {
+    fun question(question: QuestionBlock<ST>) {
         this.question = question
     }
 
@@ -71,11 +72,11 @@ class StepDsl<T : Any>(val key: String) {
         this.validation = validation
     }
 
-    fun next(next: NextStepBlock) {
+    fun next(next: NextStepBlock<ST>) {
         this.next = next
     }
 
-    internal fun build(defaultNext: NextStepBlock): Step<T> {
+    internal fun build(defaultNext: NextStepBlock<ST>): Step<T, ST> {
         return Step(
             key,
             question ?: throw FormException("Step question must not be null!"),
@@ -89,8 +90,8 @@ class StepDsl<T : Any>(val key: String) {
 }
 
 
-typealias ProcessBlock = (state: FormState, answers: Map<String, Any>) -> Unit
+typealias  ProcessBlock<ST> = (ST) -> Unit
 
-typealias QuestionBlock = (FormState) -> Unit
+typealias QuestionBlock<ST> = (ST) -> Unit
 typealias ValidationBlock<T> = (String) -> T
-typealias NextStepBlock = (FormState) -> String?
+typealias NextStepBlock<ST> = (ST) -> String?
