@@ -15,10 +15,11 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.exception.ValidationException
 
-object NameForm : Form(listOf("/name", "имя"), {
+object NameForm : Form<InmemoryFormState>(listOf("/name", "имя"), {
 
     step<Int>("length")
     {
@@ -36,10 +37,10 @@ object NameForm : Form(listOf("/name", "имя"), {
     }
 
 
-    process { state, answers ->
+    process {
         // val nameGenerator = getBean<NameGenerator>()
 
-        val length = answers["length"] as Int
+        val length = it.answers["length"] as Int
         // val name = nameGenerator.generateName(length)
 
         // MarkdownMessage("Сгенерированное имя: $name")

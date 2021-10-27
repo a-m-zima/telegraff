@@ -15,10 +15,11 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.exception.ValidationException
 
-object CounterForm : Form(listOf("/counter"), {
+object CounterForm : Form<InmemoryFormState>(listOf("/counter"), {
 
     step<Int>("counter") {
 
@@ -35,8 +36,8 @@ object CounterForm : Form(listOf("/counter"), {
         }
     }
 
-    process { state, answers ->
-        val amount = answers["counter"] as Int
+    process {
+        val amount = it.answers["counter"] as Int
 
         for (i in 1..amount) {
             /*api.sendMessage(TelegramMessageSendRequest(

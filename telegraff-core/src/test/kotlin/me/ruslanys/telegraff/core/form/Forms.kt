@@ -15,7 +15,10 @@
  */
 package me.ruslanys.telegraff.core.form
 
-val staticForms = listOf(
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
+import me.ruslanys.telegraff.core.dsl.Form
+
+val staticForms: List<Form<InmemoryFormState>> = listOf(
     CounterForm,
     HtmlForm,
     MarkdownForm,

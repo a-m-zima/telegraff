@@ -16,22 +16,26 @@
 package me.ruslanys.telegraff.core
 
 import io.kotest.matchers.collections.shouldContainExactly
+import io.kotest.matchers.maps.shouldContainKey
+import io.kotest.matchers.maps.shouldHaveSize
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
 import io.mockk.clearMocks
 import io.mockk.justRun
 import io.mockk.mockk
-import me.ruslanys.telegraff.core.data.InmemoryFormStateStorage
-import me.ruslanys.telegraff.core.data.InmemoryFormStorage
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.form.TaxiForm
 import me.ruslanys.telegraff.core.form.staticForms
 import me.ruslanys.telegraff.core.handler.*
+import me.ruslanys.telegraff.core.service.OpenInmemoryFormStateStorage
 import me.ruslanys.telegraff.core.service.TelegramApi
 import me.ruslanys.telegraff.core.spec.IntegrationSpec
 
 class IntegrationTest : IntegrationSpec({
     val telegramApi = mockk<TelegramApi>()
-    val formStateStorage = InmemoryFormStateStorage()
+    val formStateStorage = OpenInmemoryFormStateStorage()
 
     forms = staticForms + TaxiForm(telegramApi)
     formStorage = InmemoryFormStorage(forms)
@@ -61,36 +65,66 @@ class IntegrationTest : IntegrationSpec({
             handleMessage(message("такси"))
 
             tgMessage shouldContainExactly listOf("Откуда поедем?")
+            formStateStorage.getStorage() shouldHaveSize 1
+            formStateStorage.getStorage() shouldContainKey 123
+            formStateStorage.getStorage()[123] should {
+                it?.currentStepKey shouldBe "locationFrom"
+            }
         }
         "Отменяем" {
             handleMessage(message("отмена"))
 
             tgMessage shouldContainExactly listOf("Хорошо, давай начнем сначала")
+            formStateStorage.getStorage() shouldHaveSize 0
         }
         "Проверяем что нельзя продолжить" {
             handleMessage(message("Дом"))
 
             tgMessage shouldContainExactly listOf("Извини, я тебя не понимаю")
+            formStateStorage.getStorage() shouldHaveSize 0
         }
         "Повторная инициализация" {
             handleMessage(message("такси"))
 
             tgMessage shouldContainExactly listOf("Откуда поедем?")
+            formStateStorage.getStorage() shouldHaveSize 1
+            formStateStorage.getStorage() shouldContainKey 123
+            formStateStorage.getStorage()[123] should {
+                it?.currentStepKey shouldBe "locationFrom"
+            }
         }
         "Первый вопрос" {
             handleMessage(message("Дом"))
 
             tgMessage shouldContainExactly listOf("Куда поедем?")
+            formStateStorage.getStorage() shouldHaveSize 1
+            formStateStorage.getStorage() shouldContainKey 123
+            formStateStorage.getStorage()[123] should {
+                it?.currentStepKey shouldBe "locationTo"
+                it?.answers?.get("locationFrom") shouldBe "Дом"
+            }
         }
         "Второй вопрос" {
             handleMessage(message("Работа"))
 
             tgMessage shouldContainExactly listOf("Оплата картой или наличкой?")
+            formStateStorage.getStorage() shouldHaveSize 1
+            formStateStorage.getStorage() shouldContainKey 123
+            formStateStorage.getStorage()[123] should {
+                it?.currentStepKey shouldBe "paymentMethod"
+                it?.answers?.get("locationTo") shouldBe "Работа"
+            }
         }
         "Даём неверный ответ" {
             handleMessage(message("Какая то дич"))
 
             tgMessage shouldContainExactly listOf("Пожалуйста, выбери один из вариантов")
+            formStateStorage.getStorage() shouldHaveSize 1
+            formStateStorage.getStorage() shouldContainKey 123
+            formStateStorage.getStorage()[123] should {
+                it?.currentStepKey shouldBe "paymentMethod"
+                it?.answers?.get("locationTo") shouldBe "Работа"
+            }
         }
         "Последний вопрос и проверка результата" {
             handleMessage(message("картой"))
@@ -101,6 +135,7 @@ class IntegrationTest : IntegrationSpec({
                 Поедем из Дом в Работа. Оплата CARD.
                 """.trimIndent()
             )
+            formStateStorage.getStorage() shouldHaveSize 0
         }
     }
 })

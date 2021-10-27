@@ -16,18 +16,19 @@
 package me.ruslanys.telegraff.core.spec
 
 import io.kotest.core.spec.style.FreeSpec
-import me.ruslanys.telegraff.core.data.InmemoryFormStateStorage
-import me.ruslanys.telegraff.core.data.InmemoryFormStorage
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStateStorage
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
 import me.ruslanys.telegraff.core.handler.FormMessageHandler
 
 abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
-    lateinit var forms: List<Form>
+    lateinit var forms: List<Form<InmemoryFormState>>
     lateinit var formStorage: InmemoryFormStorage
 
-    lateinit var formHandler: FormMessageHandler
+    lateinit var formHandler: FormMessageHandler<InmemoryFormState>
 
     lateinit var compositeHandler: DefaultCompositeMessageHandler
 

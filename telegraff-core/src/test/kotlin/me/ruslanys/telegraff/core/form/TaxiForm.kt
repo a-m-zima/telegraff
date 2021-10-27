@@ -15,6 +15,7 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.service.TelegramApi
@@ -23,7 +24,7 @@ enum class PaymentMethod {
     CARD, CASH
 }
 
-class TaxiForm(telegramApi: TelegramApi) : Form(listOf("/taxi", "такси"), {
+class TaxiForm(telegramApi: TelegramApi) : Form<InmemoryFormState>(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
         question {
             telegramApi.sendMessage(it.chat.id, "Откуда поедем?")
@@ -50,17 +51,17 @@ class TaxiForm(telegramApi: TelegramApi) : Form(listOf("/taxi", "такси"), {
         }
     }
 
-    process { state, answers ->
-        val from = answers["locationFrom"] as String
-        val to = answers["locationTo"] as String
-        val paymentMethod = answers["paymentMethod"] as PaymentMethod
+    process {
+        val from = it.answers["locationFrom"] as String
+        val to = it.answers["locationTo"] as String
+        val paymentMethod = it.answers["paymentMethod"] as PaymentMethod
 
         // Business logic
 
         telegramApi.sendMessage(
-            state.chat.id,
+            it.chat.id,
             """
-            Заказ принят от пользователя #${state.chat.id}.
+            Заказ принят от пользователя #${it.chat.id}.
             Поедем из $from в $to. Оплата $paymentMethod.
             """.trimIndent()
         )

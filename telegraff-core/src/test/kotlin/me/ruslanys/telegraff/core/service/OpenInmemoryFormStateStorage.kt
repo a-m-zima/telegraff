@@ -13,19 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.handler
+package me.ruslanys.telegraff.core.service
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
-import me.ruslanys.telegraff.core.dto.TelegramMessage
-import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
-import me.ruslanys.telegraff.core.exception.ValidationException
-import me.ruslanys.telegraff.core.service.TelegramApi
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStateStorage
 
-class ValidationExceptionHandler(
-    private val telegramApi: TelegramApi,
-) : AbstractFormExceptionHandler<ValidationException, InmemoryFormState>() {
-
-    override fun handleException(message: TelegramMessage, state: InmemoryFormState, exception: ValidationException) {
-        telegramApi.sendMessage(state.chat.id, exception.message)
-    }
+class OpenInmemoryFormStateStorage : InmemoryFormStateStorage() {
+    fun getStorage(): Map<Long, InmemoryFormState> = states
 }

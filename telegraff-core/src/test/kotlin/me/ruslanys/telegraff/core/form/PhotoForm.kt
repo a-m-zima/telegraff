@@ -15,11 +15,12 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 
-object PhotoForm : Form(listOf("/photo", "фото"), {
+object PhotoForm : Form<InmemoryFormState>(listOf("/photo", "фото"), {
 
-    process { _, _ ->
+    process {
         // val bytes = readClasspathResource("images/sample.png")
         // PhotoMessage(bytes)
     }

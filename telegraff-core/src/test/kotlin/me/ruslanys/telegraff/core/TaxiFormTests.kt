@@ -22,8 +22,9 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.shouldBeInstanceOf
 import io.mockk.*
+import me.ruslanys.telegraff.core.data.FormState
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dsl.FormState
 import me.ruslanys.telegraff.core.dsl.Step
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.exception.ValidationException
@@ -45,7 +46,7 @@ class TaxiFormTests : FreeSpec({
     }
 
     val form = TaxiForm(telegramApi)
-    val state = FormState(TelegramChat(-1L, "PRIVATE"), form)
+    val state = InmemoryFormState(TelegramChat(-1L, "PRIVATE"), form)
 
     "step test" {
         form.getStepByKey("locationFrom").shouldNotBeNull()
@@ -56,7 +57,7 @@ class TaxiFormTests : FreeSpec({
 
 
     "location from question" {
-        val step: Step<String> = form.getStep("locationFrom")
+        val step: Step<String, InmemoryFormState> = form.getStep("locationFrom")
 
         step.question(state)
 
@@ -65,14 +66,14 @@ class TaxiFormTests : FreeSpec({
 
     "payment method validation with exception" {
         shouldThrow<ValidationException> {
-            val step = form.getStep<String>("paymentMethod")
+            val step: Step<String, InmemoryFormState> = form.getStep("paymentMethod")
 
             step.validation("Payment method")
         }
     }
 
     "payment method validation" {
-        val step = form.getStep<Any>("paymentMethod")
+        val step: Step<Any, InmemoryFormState> = form.getStep("paymentMethod")
 
         val answer = step.validation("картой")
         answer.shouldNotBeNull()
@@ -81,12 +82,15 @@ class TaxiFormTests : FreeSpec({
 
     "process" {
         form.process(
-            state, mapOf(
-                "locationFrom" to "Дом",
-                "locationTo" to "Работа",
-                "paymentMethod" to PaymentMethod.CARD
-            )
-        )
+            InmemoryFormState(state.chat, state.form).apply {
+                answers.putAll(
+                    mapOf(
+                        "locationFrom" to "Дом",
+                        "locationTo" to "Работа",
+                        "paymentMethod" to PaymentMethod.CARD
+                    )
+                )
+            })
 
         tgMessage.captured shouldBe """
             Заказ принят от пользователя #-1.
@@ -98,4 +102,4 @@ class TaxiFormTests : FreeSpec({
 })
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any> Form.getStep(key: String): Step<T> = getStepByKey(key) as Step<T>
+fun <T : Any, ST : FormState<ST>> Form<ST>.getStep(key: String): Step<T, ST> = getStepByKey(key) as Step<T, ST>

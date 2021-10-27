@@ -15,11 +15,12 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 
-object WelcomeForm : Form(listOf("/start"), {
+object WelcomeForm : Form<InmemoryFormState>(listOf("/start"), {
 
-    process { _, _ ->
+    process {
         //  MarkdownMessage("Привет!")
     }
 })

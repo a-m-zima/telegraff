@@ -15,11 +15,12 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 
-object VoiceForm : Form(listOf("/voice", "voice"), {
+object VoiceForm : Form<InmemoryFormState>(listOf("/voice", "voice"), {
 
-    process { _, _ ->
+    process {
         // val bytes = readClasspathResource("audio/sample.mp3")
         // VoiceMessage(bytes)
     }

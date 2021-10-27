@@ -15,11 +15,12 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 
-object HtmlForm : Form(listOf("/html"), {
+object HtmlForm : Form<InmemoryFormState>(listOf("/html"), {
 
-    process { _, _ ->
+    process {
         // HtmlMessage("Привет, <b>пользователь!</b>")
     }
 })

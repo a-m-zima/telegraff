@@ -15,6 +15,7 @@
  */
 package me.ruslanys.telegraff.core.form
 
+import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 
 data class HttpbinResponse(
@@ -24,13 +25,13 @@ data class HttpbinResponse(
     val url: String
 )
 
-object RestForm : Form(listOf("/rest"), {
+object RestForm : Form<InmemoryFormState>(listOf("/rest"), {
 
     /*val rest = RestTemplateBuilder()
             .rootUri("https://httpbin.org")
             .build()*/
 
-    process { _, _ ->
+    process {
         // val response = rest.getForObject<HttpbinResponse>("/get")!!
 
         // MarkdownMessage("Your IP: ${response.origin}")
