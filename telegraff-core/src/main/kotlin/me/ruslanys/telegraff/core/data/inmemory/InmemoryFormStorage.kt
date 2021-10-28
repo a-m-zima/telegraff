@@ -19,9 +19,11 @@ import me.ruslanys.telegraff.core.data.FormStorage
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-class InmemoryFormStorage(forms: List<Form<InmemoryFormState>>) : FormStorage<InmemoryFormState> {
+class InmemoryFormStorage(
+    forms: List<Form<TelegramMessage, InmemoryFormState>>
+) : FormStorage<TelegramMessage, InmemoryFormState> {
 
-    private val forms: MutableMap<String, Form<InmemoryFormState>> = hashMapOf()
+    private val forms: MutableMap<String, Form<TelegramMessage, InmemoryFormState>> = hashMapOf()
 
     init {
         for (form in forms) {
@@ -34,7 +36,7 @@ class InmemoryFormStorage(forms: List<Form<InmemoryFormState>>) : FormStorage<In
         }
     }
 
-    override fun findByMessage(message: TelegramMessage): Form<InmemoryFormState>? {
+    override fun findByMessage(message: TelegramMessage): Form<TelegramMessage, InmemoryFormState>? {
         val messageText = message.text?.lowercase() ?: return null
         val item = forms.entries.firstOrNull {
             messageText.startsWith(it.key)

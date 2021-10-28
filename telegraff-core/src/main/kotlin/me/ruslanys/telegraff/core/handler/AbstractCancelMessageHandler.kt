@@ -23,9 +23,9 @@ import mu.KotlinLogging
 private val logger = KotlinLogging.logger { }
 
 abstract class AbstractCancelMessageHandler(
-    private val formStateStorage: FormStateStorage<*>,
+    private val formStateStorage: FormStateStorage<TelegramMessage, *>,
     private val cancelCommands: List<String>,
-) : ConditionalMessageHandler {
+) : ConditionalMessageHandler<TelegramMessage> {
 
     override fun isCanHandle(message: TelegramMessage): Boolean {
         logger.debug { "Check message=$message for cancel state handler" }

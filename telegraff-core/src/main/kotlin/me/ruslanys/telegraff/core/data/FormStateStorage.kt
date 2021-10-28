@@ -16,17 +16,16 @@
 package me.ruslanys.telegraff.core.data
 
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-interface FormStateStorage<ST : FormState<ST>> {
+interface FormStateStorage<M : Any, ST : FormState<M, ST>> {
 
-    fun create(message: TelegramMessage, form: Form<ST>): ST
+    fun create(message: M, form: Form<M,ST>): ST
 
-    fun existByMessage(message: TelegramMessage): Boolean
+    fun existByMessage(message: M): Boolean
 
-    fun findByMessage(message: TelegramMessage): ST?
+    fun findByMessage(message: M): ST?
 
-    fun removeByMessage(message: TelegramMessage)
+    fun removeByMessage(message: M)
 
     fun remove(state: ST)
 

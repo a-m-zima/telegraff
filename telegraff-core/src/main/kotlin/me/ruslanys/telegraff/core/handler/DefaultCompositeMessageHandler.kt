@@ -15,18 +15,17 @@
  */
 package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dto.TelegramMessage
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
-class DefaultCompositeMessageHandler(
-    private val handlers: List<ConditionalMessageHandler>,
-    private val finalizer: MessageHandler = MessageHandler {},
-) : CompositeMessageHandler {
+class DefaultCompositeMessageHandler<M>(
+    private val handlers: List<ConditionalMessageHandler<M>>,
+    private val finalizer: MessageHandler<M> = MessageHandler {},
+) : CompositeMessageHandler<M> {
 
-    override fun handle(message: TelegramMessage) {
-        val handler: MessageHandler = handlers.firstOrNull { it.isCanHandle(message) } ?: finalizer
+    override fun handle(message: M) {
+        val handler: MessageHandler<M> = handlers.firstOrNull { it.isCanHandle(message) } ?: finalizer
         logger.debug { "message $message will be handled with ${handler::class.simpleName}" }
         handler.handle(message)
     }

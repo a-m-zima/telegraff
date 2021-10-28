@@ -18,11 +18,11 @@ package me.ruslanys.telegraff.core.data
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dsl.Step
 
-interface FormState<ST : FormState<ST>> {
+interface FormState<M : Any, ST : FormState<M, ST>> {
 
-    val form: Form<ST>
+    val form: Form<M, ST>
 
     val currentStepKey: String?
 
-    val currentStep: Step<*, ST>? get() = currentStepKey?.let { form.getStepByKey(it) }
+    val currentStep: Step<M, *, ST>? get() = currentStepKey?.let { form.getStepByKey(it) }
 }

@@ -19,24 +19,23 @@ import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.data.FormStateStorage
 import me.ruslanys.telegraff.core.data.FormStorage
 import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
 import me.ruslanys.telegraff.core.exception.ValidationException
 import mu.KotlinLogging
 
 private val logger = KotlinLogging.logger { }
 
-class FormMessageHandler<ST : FormState<ST>>(
-    private val formStorage: FormStorage<ST>,
-    private val formStateStorage: FormStateStorage<ST>,
-    private val exceptionHandlers: List<AbstractFormExceptionHandler<out Exception, ST>> = emptyList(),
-) : ConditionalMessageHandler {
+class FormMessageHandler<M : Any, ST : FormState<M, ST>>(
+    private val formStorage: FormStorage<M, ST>,
+    private val formStateStorage: FormStateStorage<M, ST>,
+    private val exceptionHandlers: List<AbstractFormExceptionHandler<M, ST, out Exception>> = emptyList(),
+) : ConditionalMessageHandler<M> {
 
-    override fun isCanHandle(message: TelegramMessage): Boolean {
+    override fun isCanHandle(message: M): Boolean {
         return formStateStorage.existByMessage(message) || formStorage.existByMessage(message)
     }
 
-    override fun handle(message: TelegramMessage) {
+    override fun handle(message: M) {
         val form = findForm(message)
 
         val state = formStateStorage.findByMessage(message)
@@ -58,15 +57,14 @@ class FormMessageHandler<ST : FormState<ST>>(
         }
     }
 
-    private fun handleContinuation(state: ST, message: TelegramMessage) {
+    private fun handleContinuation(state: ST, message: M) {
         val currentStep = state.currentStep!!
-        val text = message.text!!
 
         // validation
         val validation = currentStep.validation
 
         val answer = try {
-            validation(text)
+            validation(message)
         } catch (e: ValidationException) {
             // stop handling
             return handleException(message, state, e)
@@ -95,7 +93,7 @@ class FormMessageHandler<ST : FormState<ST>>(
         formStateStorage.remove(state)
     }
 
-    private fun findForm(message: TelegramMessage): Form<ST> {
+    private fun findForm(message: M): Form<M, ST> {
         val state = formStateStorage.findByMessage(message)
         if (state != null) {
             return state.form
@@ -104,14 +102,14 @@ class FormMessageHandler<ST : FormState<ST>>(
         return formStorage.findByMessage(message)!!
     }
 
-    private fun handleFatalException(message: TelegramMessage, state: ST, exception: Exception) {
+    private fun handleFatalException(message: M, state: ST, exception: Exception) {
         logger.error(exception) { "Error during form processing" }
         formStateStorage.removeByMessage(message)
 
         handleException(message, state, exception)
     }
 
-    private fun handleException(message: TelegramMessage, state: ST, exception: Exception) {
+    private fun handleException(message: M, state: ST, exception: Exception) {
         exceptionHandlers.firstOrNull { it.canHandle(exception) }
             ?.uncheckHandleException(message, state, exception)
             ?: logger.error(exception) { "Error on message=$message not handled" }

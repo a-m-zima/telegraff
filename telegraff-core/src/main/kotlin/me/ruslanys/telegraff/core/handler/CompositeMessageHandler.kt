@@ -15,8 +15,6 @@
  */
 package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dto.TelegramMessage
-
-fun interface CompositeMessageHandler {
-    fun handle(message: TelegramMessage)
+fun interface CompositeMessageHandler<M> {
+    fun handle(message: M)
 }

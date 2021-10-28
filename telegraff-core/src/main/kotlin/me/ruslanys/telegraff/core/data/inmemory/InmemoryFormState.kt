@@ -18,17 +18,18 @@ package me.ruslanys.telegraff.core.data.inmemory
 import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dsl.Step
-import me.ruslanys.telegraff.core.dto.TelegramChat
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 import java.util.concurrent.ConcurrentHashMap
 
 data class InmemoryFormState(
-    val chat: TelegramChat,
-    override val form: Form<InmemoryFormState>,
-) : FormState<InmemoryFormState> {
+    val chatId: Long,
+    val fromId: Long,
+    override val form: Form<TelegramMessage, InmemoryFormState>,
+) : FormState<TelegramMessage, InmemoryFormState> {
 
     override val currentStepKey: String? get() = currentStep?.key
 
-    override var currentStep: Step<*, InmemoryFormState>? = form.getInitialStep()
+    override var currentStep: Step<TelegramMessage, *, InmemoryFormState>? = form.getInitialStep()
 
     val answers: MutableMap<String, Any> = ConcurrentHashMap()
 }

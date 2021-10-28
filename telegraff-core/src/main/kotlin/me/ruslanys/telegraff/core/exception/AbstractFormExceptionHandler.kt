@@ -16,20 +16,19 @@
 package me.ruslanys.telegraff.core.exception
 
 import me.ruslanys.telegraff.core.data.FormState
-import me.ruslanys.telegraff.core.dto.TelegramMessage
 import java.lang.reflect.ParameterizedType
 
-abstract class AbstractFormExceptionHandler<EX : Exception, ST : FormState<ST>> {
+abstract class AbstractFormExceptionHandler<M : Any, ST : FormState<M, ST>, EX : Exception> {
 
     fun canHandle(exception: Exception): Boolean {
         return (this::class.java.genericSuperclass as ParameterizedType)
             .actualTypeArguments.first() == exception::class.java
     }
 
-    abstract fun handleException(message: TelegramMessage, state: ST, exception: EX)
+    abstract fun handleException(message: M, state: ST, exception: EX)
 
     @Suppress("UNCHECKED_CAST")
-    internal fun uncheckHandleException(message: TelegramMessage, state: ST, exception: Exception) {
+    internal fun uncheckHandleException(message: M, state: ST, exception: Exception) {
         handleException(message, state, exception as EX)
     }
 }

@@ -15,8 +15,8 @@
  */
 package me.ruslanys.telegraff.core.dto
 
-// TODO main content message
-data class TelegramMessage(
-    val chat: TelegramChat,
-    val text: String?,
-)
+interface TelegramMessage {
+    val chatId: Long
+    val fromId: Long
+    val text: String?
+}

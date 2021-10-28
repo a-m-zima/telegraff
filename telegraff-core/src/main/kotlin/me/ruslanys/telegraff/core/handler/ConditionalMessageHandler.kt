@@ -15,9 +15,6 @@
  */
 package me.ruslanys.telegraff.core.handler
 
-import me.ruslanys.telegraff.core.dto.TelegramMessage
-
-interface ConditionalMessageHandler : MessageHandler {
-
-    fun isCanHandle(message: TelegramMessage): Boolean
+interface ConditionalMessageHandler<M> : MessageHandler<M> {
+    fun isCanHandle(message: M): Boolean
 }

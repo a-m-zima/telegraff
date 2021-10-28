@@ -17,16 +17,16 @@ package me.ruslanys.telegraff.core.dsl
 
 import me.ruslanys.telegraff.core.data.FormState
 
-class Step<T : Any, ST : FormState<ST>>(
+class Step<M : Any, T : Any, ST : FormState<M,ST>>(
     val key: String,
     val question: QuestionBlock<ST>,
-    val validation: ValidationBlock<T>,
+    val validation: ValidationBlock<M, T>,
     val next: NextStepBlock<ST>
 ) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Step<*, *>) return false
+        if (other !is Step<*, *, *>) return false
 
         if (key != other.key) return false
 

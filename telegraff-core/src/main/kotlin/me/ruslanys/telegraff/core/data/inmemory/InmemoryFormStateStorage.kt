@@ -20,11 +20,11 @@ import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import java.util.concurrent.ConcurrentHashMap
 
-open class InmemoryFormStateStorage : FormStateStorage<InmemoryFormState> {
+open class InmemoryFormStateStorage : FormStateStorage<TelegramMessage, InmemoryFormState> {
 
-    protected val states: MutableMap<Long, InmemoryFormState> = ConcurrentHashMap()
+    protected val states: MutableMap<Pair<Long, Long>, InmemoryFormState> = ConcurrentHashMap()
 
-    override fun findByMessage(message: TelegramMessage): InmemoryFormState? = states[message.chat.id]
+    override fun findByMessage(message: TelegramMessage): InmemoryFormState? = states[message.chatId to message.fromId]
 
     override fun storeAnswer(state: InmemoryFormState, formStepKey: String, answer: Any) {
         state.answers[formStepKey] = answer
@@ -38,20 +38,20 @@ open class InmemoryFormStateStorage : FormStateStorage<InmemoryFormState> {
     }
 
     override fun removeByMessage(message: TelegramMessage) {
-        states.remove(message.chat.id)
+        states.remove(message.chatId to message.fromId)
     }
 
-    override fun create(message: TelegramMessage, form: Form<InmemoryFormState>): InmemoryFormState {
-        val newState = InmemoryFormState(message.chat, form)
-        states[message.chat.id] = newState
+    override fun create(message: TelegramMessage, form: Form<TelegramMessage, InmemoryFormState>): InmemoryFormState {
+        val newState = InmemoryFormState(message.chatId, message.fromId, form)
+        states[message.chatId to message.fromId] = newState
         return newState
     }
 
     override fun remove(state: InmemoryFormState) {
-        states.remove(state.chat.id)
+        states.remove(state.chatId to state.fromId)
     }
 
     override fun existByMessage(message: TelegramMessage): Boolean {
-        return states.containsKey(message.chat.id)
+        return states.containsKey(message.chatId to message.fromId)
     }
 }

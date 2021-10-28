@@ -18,21 +18,21 @@ package me.ruslanys.telegraff.core.dsl
 import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.exception.FormException
 
-open class Form<ST : FormState<ST>>(val commands: List<String>, init: FormDsl<ST>.() -> Unit) {
+open class Form<M : Any, ST : FormState<M, ST>>(val commands: List<String>, init: FormDsl<M, ST>.() -> Unit) {
 
-    private val steps: Map<String, Step<*, ST>>
+    private val steps: Map<String, Step<M, *, ST>>
     private val initialStepKey: String?
     val process: ProcessBlock<ST>
 
     init {
-        val dsl = FormDsl<ST>().apply(init)
+        val dsl = FormDsl<M, ST>().apply(init)
         steps = dsl.buildSteps()
         initialStepKey = dsl.stepDslList.firstOrNull()?.key
         process = dsl.process ?: throw FormException("Process block must not be null!")
     }
 
 
-    fun getInitialStep(): Step<*, ST>? {
+    fun getInitialStep(): Step<M, *, ST>? {
         return if (initialStepKey != null) {
             steps[initialStepKey]!!
         } else {
@@ -40,7 +40,7 @@ open class Form<ST : FormState<ST>>(val commands: List<String>, init: FormDsl<ST
         }
     }
 
-    fun getStepByKey(key: String): Step<*, ST>? {
+    fun getStepByKey(key: String): Step<M, *, ST>? {
         return steps[key]
     }
 }
