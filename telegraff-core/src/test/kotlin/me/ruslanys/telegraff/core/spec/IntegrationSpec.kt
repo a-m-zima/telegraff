@@ -25,12 +25,12 @@ import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
 import me.ruslanys.telegraff.core.handler.FormMessageHandler
 
 abstract class IntegrationSpec(body: IntegrationSpec.() -> Unit) : FreeSpec() {
-    lateinit var forms: List<Form<InmemoryFormState>>
+    lateinit var forms: List<Form<TelegramMessage, InmemoryFormState>>
     lateinit var formStorage: InmemoryFormStorage
 
-    lateinit var formHandler: FormMessageHandler<InmemoryFormState>
+    lateinit var formHandler: FormMessageHandler<TelegramMessage, InmemoryFormState>
 
-    lateinit var compositeHandler: DefaultCompositeMessageHandler
+    lateinit var compositeHandler: DefaultCompositeMessageHandler<TelegramMessage>
 
     init {
         body()

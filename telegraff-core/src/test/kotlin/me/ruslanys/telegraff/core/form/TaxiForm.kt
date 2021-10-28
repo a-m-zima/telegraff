@@ -17,6 +17,7 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.service.TelegramApi
 
@@ -24,26 +25,26 @@ enum class PaymentMethod {
     CARD, CASH
 }
 
-class TaxiForm(telegramApi: TelegramApi) : Form<InmemoryFormState>(listOf("/taxi", "такси"), {
+class TaxiForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryFormState>(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
         question {
-            telegramApi.sendMessage(it.chat.id, "Откуда поедем?")
+            telegramApi.sendMessage(it.chatId, "Откуда поедем?")
         }
     }
 
     step<String>("locationTo") {
         question {
-            telegramApi.sendMessage(it.chat.id, "Куда поедем?")
+            telegramApi.sendMessage(it.chatId, "Куда поедем?")
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
         question {
-            telegramApi.sendMessage(it.chat.id, "Оплата картой или наличкой?")
+            telegramApi.sendMessage(it.chatId, "Оплата картой или наличкой?")
         }
 
         validation {
-            when (it.lowercase()) {
+            when (it.text!!.lowercase()) {
                 "картой" -> PaymentMethod.CARD
                 "наличкой" -> PaymentMethod.CASH
                 else -> throw ValidationException("Пожалуйста, выбери один из вариантов")
@@ -59,9 +60,9 @@ class TaxiForm(telegramApi: TelegramApi) : Form<InmemoryFormState>(listOf("/taxi
         // Business logic
 
         telegramApi.sendMessage(
-            it.chat.id,
+            it.chatId,
             """
-            Заказ принят от пользователя #${it.chat.id}.
+            Заказ принят от пользователя #${it.chatId}.
             Поедем из $from в $to. Оплата $paymentMethod.
             """.trimIndent()
         )

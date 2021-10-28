@@ -25,7 +25,8 @@ import io.mockk.justRun
 import io.mockk.mockk
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dto.TelegramChat
-import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.core.dto.TelegramMessageImpl
+import me.ruslanys.telegraff.core.dto.TelegramUser
 import me.ruslanys.telegraff.core.form.TaxiForm
 import me.ruslanys.telegraff.core.form.staticForms
 import me.ruslanys.telegraff.core.handler.*
@@ -66,8 +67,8 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Откуда поедем?")
             formStateStorage.getStorage() shouldHaveSize 1
-            formStateStorage.getStorage() shouldContainKey 123
-            formStateStorage.getStorage()[123] should {
+            formStateStorage.getStorage() shouldContainKey (123L to 111)
+            formStateStorage.getStorage()[123L to 111] should {
                 it?.currentStepKey shouldBe "locationFrom"
             }
         }
@@ -88,8 +89,8 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Откуда поедем?")
             formStateStorage.getStorage() shouldHaveSize 1
-            formStateStorage.getStorage() shouldContainKey 123
-            formStateStorage.getStorage()[123] should {
+            formStateStorage.getStorage() shouldContainKey (123L to 111)
+            formStateStorage.getStorage()[123L to 111] should {
                 it?.currentStepKey shouldBe "locationFrom"
             }
         }
@@ -98,8 +99,8 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Куда поедем?")
             formStateStorage.getStorage() shouldHaveSize 1
-            formStateStorage.getStorage() shouldContainKey 123
-            formStateStorage.getStorage()[123] should {
+            formStateStorage.getStorage() shouldContainKey (123L to 111)
+            formStateStorage.getStorage()[123L to 111] should {
                 it?.currentStepKey shouldBe "locationTo"
                 it?.answers?.get("locationFrom") shouldBe "Дом"
             }
@@ -109,8 +110,8 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Оплата картой или наличкой?")
             formStateStorage.getStorage() shouldHaveSize 1
-            formStateStorage.getStorage() shouldContainKey 123
-            formStateStorage.getStorage()[123] should {
+            formStateStorage.getStorage() shouldContainKey (123L to 111)
+            formStateStorage.getStorage()[123L to 111] should {
                 it?.currentStepKey shouldBe "paymentMethod"
                 it?.answers?.get("locationTo") shouldBe "Работа"
             }
@@ -120,8 +121,8 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf("Пожалуйста, выбери один из вариантов")
             formStateStorage.getStorage() shouldHaveSize 1
-            formStateStorage.getStorage() shouldContainKey 123
-            formStateStorage.getStorage()[123] should {
+            formStateStorage.getStorage() shouldContainKey (123L to 111)
+            formStateStorage.getStorage()[123L to 111] should {
                 it?.currentStepKey shouldBe "paymentMethod"
                 it?.answers?.get("locationTo") shouldBe "Работа"
             }
@@ -140,4 +141,8 @@ class IntegrationTest : IntegrationSpec({
     }
 })
 
-private fun message(text: String) = TelegramMessage(TelegramChat(123, "PRIVATE"), text)
+private fun message(text: String) = TelegramMessageImpl(
+    TelegramChat(123, "PRIVATE"),
+    TelegramUser(111),
+    text
+)

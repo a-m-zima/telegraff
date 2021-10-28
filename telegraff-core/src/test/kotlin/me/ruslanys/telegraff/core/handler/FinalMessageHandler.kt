@@ -18,9 +18,9 @@ package me.ruslanys.telegraff.core.handler
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.service.TelegramApi
 
-class FinalMessageHandler(private val telegramApi: TelegramApi) : MessageHandler {
+class FinalMessageHandler(private val telegramApi: TelegramApi) : MessageHandler<TelegramMessage> {
 
     override fun handle(message: TelegramMessage) {
-        telegramApi.sendMessage(message.chat.id, "Извини, я тебя не понимаю")
+        telegramApi.sendMessage(message.chatId, "Извини, я тебя не понимаю")
     }
 }

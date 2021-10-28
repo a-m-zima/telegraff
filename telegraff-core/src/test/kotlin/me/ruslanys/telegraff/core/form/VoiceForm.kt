@@ -17,8 +17,9 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-object VoiceForm : Form<InmemoryFormState>(listOf("/voice", "voice"), {
+object VoiceForm : Form<TelegramMessage, InmemoryFormState>(listOf("/voice", "voice"), {
 
     process {
         // val bytes = readClasspathResource("audio/sample.mp3")

@@ -15,8 +15,12 @@
  */
 package me.ruslanys.telegraff.core.dto
 
-// TODO Chat dto
-data class TelegramChat(
-    val id: Long,
-    val type: String,
-)
+data class TelegramMessageImpl(
+    val chat: TelegramChat,
+    val from: TelegramUser,
+    override val text: String?
+) : TelegramMessage {
+
+    override val chatId: Long get() = chat.id
+    override val fromId: Long get() = from.id
+}

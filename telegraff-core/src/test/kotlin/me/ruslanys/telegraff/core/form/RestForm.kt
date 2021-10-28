@@ -17,6 +17,7 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
 data class HttpbinResponse(
     val headers: Map<String, String>,
@@ -25,7 +26,7 @@ data class HttpbinResponse(
     val url: String
 )
 
-object RestForm : Form<InmemoryFormState>(listOf("/rest"), {
+object RestForm : Form<TelegramMessage, InmemoryFormState>(listOf("/rest"), {
 
     /*val rest = RestTemplateBuilder()
             .rootUri("https://httpbin.org")

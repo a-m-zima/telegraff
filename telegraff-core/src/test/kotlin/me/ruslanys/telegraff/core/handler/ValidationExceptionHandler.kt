@@ -23,9 +23,9 @@ import me.ruslanys.telegraff.core.service.TelegramApi
 
 class ValidationExceptionHandler(
     private val telegramApi: TelegramApi,
-) : AbstractFormExceptionHandler<ValidationException, InmemoryFormState>() {
+) : AbstractFormExceptionHandler<TelegramMessage, InmemoryFormState, ValidationException>() {
 
     override fun handleException(message: TelegramMessage, state: InmemoryFormState, exception: ValidationException) {
-        telegramApi.sendMessage(state.chat.id, exception.message)
+        telegramApi.sendMessage(state.chatId, exception.message)
     }
 }

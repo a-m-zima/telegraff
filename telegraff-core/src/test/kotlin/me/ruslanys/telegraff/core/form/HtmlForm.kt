@@ -17,8 +17,9 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-object HtmlForm : Form<InmemoryFormState>(listOf("/html"), {
+object HtmlForm : Form<TelegramMessage, InmemoryFormState>(listOf("/html"), {
 
     process {
         // HtmlMessage("Привет, <b>пользователь!</b>")

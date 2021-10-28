@@ -13,11 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.core.service
+package me.ruslanys.telegraff.core.dto
 
-import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
-import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStateStorage
-
-class OpenInmemoryFormStateStorage : InmemoryFormStateStorage() {
-    fun getStorage(): Map<Pair<Long, Long>, InmemoryFormState> = states
-}
+data class TelegramChat(
+    val id: Long,
+    val type: String,
+)

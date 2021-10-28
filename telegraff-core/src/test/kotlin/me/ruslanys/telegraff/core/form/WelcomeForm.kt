@@ -17,8 +17,9 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-object WelcomeForm : Form<InmemoryFormState>(listOf("/start"), {
+object WelcomeForm : Form<TelegramMessage, InmemoryFormState>(listOf("/start"), {
 
     process {
         //  MarkdownMessage("Привет!")

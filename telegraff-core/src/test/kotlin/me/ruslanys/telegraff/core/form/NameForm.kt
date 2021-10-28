@@ -17,9 +17,11 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.ValidationException
+import kotlin.math.abs
 
-object NameForm : Form<InmemoryFormState>(listOf("/name", "имя"), {
+object NameForm : Form<TelegramMessage, InmemoryFormState>(listOf("/name", "имя"), {
 
     step<Int>("length")
     {
@@ -29,7 +31,7 @@ object NameForm : Form<InmemoryFormState>(listOf("/name", "имя"), {
 
         validation {
             try {
-                Math.abs(it.toInt())
+                abs(it.text!!.toInt())
             } catch (e: Exception) {
                 throw ValidationException("Укажи число")
             }

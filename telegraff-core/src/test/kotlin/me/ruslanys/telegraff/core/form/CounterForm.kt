@@ -17,9 +17,10 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.ValidationException
 
-object CounterForm : Form<InmemoryFormState>(listOf("/counter"), {
+object CounterForm : Form<TelegramMessage, InmemoryFormState>(listOf("/counter"), {
 
     step<Int>("counter") {
 
@@ -29,7 +30,7 @@ object CounterForm : Form<InmemoryFormState>(listOf("/counter"), {
 
         validation {
             try {
-                it.toInt()
+                it.text!!.toInt()
             } catch (e: Exception) {
                 throw ValidationException("Укажите число")
             }

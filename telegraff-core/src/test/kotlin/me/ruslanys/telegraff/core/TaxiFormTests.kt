@@ -27,6 +27,9 @@ import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dsl.Step
 import me.ruslanys.telegraff.core.dto.TelegramChat
+import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.core.dto.TelegramMessageImpl
+import me.ruslanys.telegraff.core.dto.TelegramUser
 import me.ruslanys.telegraff.core.exception.ValidationException
 import me.ruslanys.telegraff.core.form.PaymentMethod
 import me.ruslanys.telegraff.core.form.TaxiForm
@@ -46,7 +49,7 @@ class TaxiFormTests : FreeSpec({
     }
 
     val form = TaxiForm(telegramApi)
-    val state = InmemoryFormState(TelegramChat(-1L, "PRIVATE"), form)
+    val state = InmemoryFormState(-1L, 111, form)
 
     "step test" {
         form.getStepByKey("locationFrom").shouldNotBeNull()
@@ -57,7 +60,7 @@ class TaxiFormTests : FreeSpec({
 
 
     "location from question" {
-        val step: Step<String, InmemoryFormState> = form.getStep("locationFrom")
+        val step: Step<*, String, InmemoryFormState> = form.getStep("locationFrom")
 
         step.question(state)
 
@@ -66,23 +69,23 @@ class TaxiFormTests : FreeSpec({
 
     "payment method validation with exception" {
         shouldThrow<ValidationException> {
-            val step: Step<String, InmemoryFormState> = form.getStep("paymentMethod")
+            val step: Step<TelegramMessage, String, InmemoryFormState> = form.getStep("paymentMethod")
 
-            step.validation("Payment method")
+            step.validation(TelegramMessageImpl(TelegramChat(0, ""), TelegramUser(0), "Payment method"))
         }
     }
 
     "payment method validation" {
-        val step: Step<Any, InmemoryFormState> = form.getStep("paymentMethod")
+        val step: Step<TelegramMessage, Any, InmemoryFormState> = form.getStep("paymentMethod")
 
-        val answer = step.validation("картой")
+        val answer = step.validation(TelegramMessageImpl(TelegramChat(0, ""), TelegramUser(0), "картой"))
         answer.shouldNotBeNull()
         answer.shouldBeInstanceOf<Enum<*>>()
     }
 
     "process" {
         form.process(
-            InmemoryFormState(state.chat, state.form).apply {
+            InmemoryFormState(state.chatId, state.fromId, state.form).apply {
                 answers.putAll(
                     mapOf(
                         "locationFrom" to "Дом",
@@ -102,4 +105,6 @@ class TaxiFormTests : FreeSpec({
 })
 
 @Suppress("UNCHECKED_CAST")
-fun <T : Any, ST : FormState<ST>> Form<ST>.getStep(key: String): Step<T, ST> = getStepByKey(key) as Step<T, ST>
+fun <M : Any, T : Any, ST : FormState<M, ST>> Form<M, ST>.getStep(key: String): Step<M, T, ST> {
+    return getStepByKey(key) as Step<M, T, ST>
+}

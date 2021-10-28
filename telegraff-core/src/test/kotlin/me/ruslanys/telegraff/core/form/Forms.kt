@@ -17,8 +17,9 @@ package me.ruslanys.telegraff.core.form
 
 import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
+import me.ruslanys.telegraff.core.dto.TelegramMessage
 
-val staticForms: List<Form<InmemoryFormState>> = listOf(
+val staticForms: List<Form<TelegramMessage, InmemoryFormState>> = listOf(
     CounterForm,
     HtmlForm,
     MarkdownForm,

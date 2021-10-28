@@ -20,11 +20,11 @@ import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.service.TelegramApi
 
 class CancelMessageHandler(
-    formStateStorage: FormStateStorage<*>,
+    formStateStorage: FormStateStorage<TelegramMessage, *>,
     private val telegramApi: TelegramApi,
 ) : AbstractCancelMessageHandler(formStateStorage, listOf("/cancel", "отмена")) {
 
     override fun cancelHandler(message: TelegramMessage) {
-        telegramApi.sendMessage(message.chat.id, "Хорошо, давай начнем сначала")
+        telegramApi.sendMessage(message.chatId, "Хорошо, давай начнем сначала")
     }
 }
