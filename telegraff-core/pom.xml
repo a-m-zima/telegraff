@@ -13,10 +13,6 @@
     <groupId>com.github.xzima.telegraff</groupId>
     <artifactId>telegraff-core</artifactId>
 
-    <properties>
-        <kotest_version>4.6.3</kotest_version>
-    </properties>
-
     <dependencies>
         <!--ide -->
         <dependency>
@@ -25,36 +21,23 @@
         </dependency>
         <!-- logger -->
         <dependency>
-            <!-- https://github.com/MicroUtils/kotlin-logging -->
             <groupId>io.github.microutils</groupId>
             <artifactId>kotlin-logging-jvm</artifactId>
-            <version>2.0.11</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.6</version>
             <scope>runtime</scope>
         </dependency>
         <!-- test -->
-        <!-- kotest https://kotest.io/ -->
         <dependency>
             <groupId>io.kotest</groupId>
             <artifactId>kotest-runner-junit5-jvm</artifactId>
-            <version>${kotest_version}</version>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.mockk</groupId>
-                    <artifactId>mockk</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
-        <!-- mockk https://mockk.io/ -->
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
-            <version>1.12.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
