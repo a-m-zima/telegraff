@@ -19,13 +19,14 @@ import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
 import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.dto.TelegramMessage
 import me.ruslanys.telegraff.core.exception.ValidationException
+import me.ruslanys.telegraff.core.service.TelegramApi
 
-object CounterForm : Form<TelegramMessage, InmemoryFormState>(listOf("/counter"), {
+class CounterForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryFormState>(listOf("/counter"), {
 
     step<Int>("counter") {
 
         question {
-            // MarkdownMessage("До скольки нужно посчитать?")
+            telegramApi.sendMessage(it.chatId, "До скольки нужно посчитать?")
         }
 
         validation {
@@ -41,11 +42,7 @@ object CounterForm : Form<TelegramMessage, InmemoryFormState>(listOf("/counter")
         val amount = it.answers["counter"] as Int
 
         for (i in 1..amount) {
-            /*api.sendMessage(TelegramMessageSendRequest(
-                state.chat.id,
-                i.toString(),
-                TelegramParseMode.MARKDOWN
-            ))*/
+            telegramApi.sendMessage(it.chatId, i.toString())
         }
     }
 })

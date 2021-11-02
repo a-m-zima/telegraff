@@ -27,8 +27,9 @@ import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormStorage
 import me.ruslanys.telegraff.core.dto.TelegramChat
 import me.ruslanys.telegraff.core.dto.TelegramMessageImpl
 import me.ruslanys.telegraff.core.dto.TelegramUser
+import me.ruslanys.telegraff.core.form.CounterForm
 import me.ruslanys.telegraff.core.form.TaxiForm
-import me.ruslanys.telegraff.core.form.staticForms
+import me.ruslanys.telegraff.core.form.WelcomeForm
 import me.ruslanys.telegraff.core.handler.*
 import me.ruslanys.telegraff.core.service.OpenInmemoryFormStateStorage
 import me.ruslanys.telegraff.core.service.TelegramApi
@@ -38,7 +39,12 @@ class IntegrationTest : IntegrationSpec({
     val telegramApi = mockk<TelegramApi>()
     val formStateStorage = OpenInmemoryFormStateStorage()
 
-    forms = staticForms + TaxiForm(telegramApi)
+    forms = listOf(
+        CounterForm(telegramApi),
+        TaxiForm(telegramApi),
+        WelcomeForm(telegramApi),
+    )
+
     formStorage = InmemoryFormStorage(forms)
     formHandler = FormMessageHandler(
         formStorage,
