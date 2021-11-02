@@ -77,7 +77,7 @@ telegram.webhook-endpoint-url=        # optional
 
 ## Использование
 
-Положите файл с расширением `.kts` в папку c ресурсами `handlers`:
+Положите файл с расширением `.kts` в папку с ресурсами `handlers`:
 `resources/handlers/ExampleHandler.kts`.
 
 ```kotlin
