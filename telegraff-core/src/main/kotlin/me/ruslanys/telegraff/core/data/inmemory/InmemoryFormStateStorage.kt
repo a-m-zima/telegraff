@@ -27,7 +27,10 @@ open class InmemoryFormStateStorage : FormStateStorage<TelegramMessage, Inmemory
     override fun findByMessage(message: TelegramMessage): InmemoryFormState? = states[message.chatId to message.fromId]
 
     override fun storeAnswer(state: InmemoryFormState, formStepKey: String, answer: Any) {
-        state.answers[formStepKey] = answer
+        when (answer) {
+            is TelegramMessage -> state.answers[formStepKey] = answer.text!!
+            else -> state.answers[formStepKey] = answer
+        }
     }
 
     override fun doNextStep(state: InmemoryFormState) {

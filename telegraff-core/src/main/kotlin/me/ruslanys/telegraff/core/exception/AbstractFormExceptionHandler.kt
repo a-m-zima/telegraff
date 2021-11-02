@@ -22,7 +22,7 @@ abstract class AbstractFormExceptionHandler<M : Any, ST : FormState<M, ST>, EX :
 
     fun canHandle(exception: Exception): Boolean {
         return (this::class.java.genericSuperclass as ParameterizedType)
-            .actualTypeArguments.first() == exception::class.java
+            .actualTypeArguments[2] == exception::class.java
     }
 
     abstract fun handleException(message: M, state: ST, exception: EX)
