@@ -106,6 +106,8 @@
         <kotest.version>4.6.3</kotest.version>
         <kotlin.logging.version>2.0.11</kotlin.logging.version>
         <logback.version>1.2.6</logback.version>
+        <telegram.api.version>5.3.0</telegram.api.version>
+        <springmockk.version>3.0.1</springmockk.version>
         <mockk.version>1.12.0</mockk.version>
         <!--================================================-->
         <plugin.site.version>3.9.1</plugin.site.version>
@@ -136,7 +138,6 @@
         <ignoreCommitsIfMessageMatches>
             ^\[maven-release-plugin\].*
         </ignoreCommitsIfMessageMatches>
-        <telegram.api.version>5.3.0</telegram.api.version>
     </properties>
 
     <build>
@@ -547,7 +548,11 @@
                 <groupId>io.mockk</groupId>
                 <artifactId>mockk</artifactId>
                 <version>${mockk.version}</version>
-                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.ninja-squad</groupId>
+                <artifactId>springmockk</artifactId>
+                <version>${springmockk.version}</version>
             </dependency>
             <!-- spring -->
             <dependency>
@@ -556,6 +561,12 @@
                 <version>2.5.5</version>
                 <scope>import</scope>
                 <type>pom</type>
+            </dependency>
+            <!-- fix dependency conflict -->
+            <dependency>
+                <artifactId>apiguardian-api</artifactId>
+                <groupId>org.apiguardian</groupId>
+                <version>1.1.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
