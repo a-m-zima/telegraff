@@ -1,7 +1,9 @@
-package me.ruslanys.telegraff.sample.handlers
+package me.ruslanys.telegraff.sample.forms
 
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.request.ParseMode
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove
 import com.pengrad.telegrambot.request.SendMessage
 import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
 import me.ruslanys.telegraff.core.exception.ValidationException
@@ -27,8 +29,15 @@ class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "та
 
     step<PaymentMethod>("paymentMethod") {
         question {
-            // TODO добавить клавиатуру + валидация не должна её ломать
-            telegramBot.execute(SendMessage(it.chatId, "Оплата картой или наличкой?").parseMode(ParseMode.Markdown))
+            telegramBot.execute(
+                SendMessage(it.chatId, "Оплата картой или наличкой?")
+                    .parseMode(ParseMode.Markdown)
+                    .replyMarkup(
+                        ReplyKeyboardMarkup("картой", "наличкой")
+                            .resizeKeyboard(true)
+                            .selective(true)
+                    )
+            )
         }
 
         validation {
@@ -51,10 +60,11 @@ class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "та
             SendMessage(
                 it.chatId,
                 """
-            Заказ принят от пользователя #${it.chatId}.
-            Поедем из $from в $to. Оплата $paymentMethod.
-            """.trimIndent()
+                Заказ принят от пользователя #${it.fromId}.
+                Поедем из $from в $to. Оплата $paymentMethod.
+                """.trimIndent()
             ).parseMode(ParseMode.Markdown)
+                .replyMarkup(ReplyKeyboardRemove())
         )
     }
 })

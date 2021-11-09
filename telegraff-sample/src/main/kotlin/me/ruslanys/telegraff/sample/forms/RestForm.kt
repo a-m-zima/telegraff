@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.sample.handlers
+package me.ruslanys.telegraff.sample.forms
 
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.request.ParseMode
@@ -39,7 +39,6 @@ class RestForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/rest"), {
         .build()
 
     process {
-        // TODO dont work
         val response = rest.getForObject<HttpbinResponse>("/get")
 
         telegramBot.execute(SendMessage(it.chatId, "Your IP: ${response.origin}").parseMode(ParseMode.Markdown))

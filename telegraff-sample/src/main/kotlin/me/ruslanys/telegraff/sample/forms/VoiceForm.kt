@@ -13,23 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package me.ruslanys.telegraff.sample.handlers
+package me.ruslanys.telegraff.sample.forms
 
 import com.pengrad.telegrambot.TelegramBot
-import com.pengrad.telegrambot.request.SendPhoto
+import com.pengrad.telegrambot.request.SendVoice
 import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
 
 @Component
-class PhotoForm(
+class VoiceForm(
     telegramBot: TelegramBot,
-    @Value("images/sample.png") sample: Resource,
-) : TelegrambotForm(listOf("/photo", "фото"), {
+    @Value("classpath:audio/sample.mp3") sample: Resource,
+) : TelegrambotForm(listOf("/voice", "voice"), {
 
     process {
-        // TODO dont work
-        telegramBot.execute(SendPhoto(it.chatId, sample.file))
+        telegramBot.execute(SendVoice(it.chatId, sample.file))
     }
 })
