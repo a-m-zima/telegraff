@@ -28,7 +28,7 @@ class VoiceForm(
     @Value("classpath:audio/sample.mp3") sample: Resource,
 ) : TelegrambotForm(listOf("/voice", "voice"), {
 
-    process {
-        telegramBot.execute(SendVoice(it.chatId, sample.file))
+    process { _, state ->
+        telegramBot.execute(SendVoice(state.chatId, sample.file))
     }
 })

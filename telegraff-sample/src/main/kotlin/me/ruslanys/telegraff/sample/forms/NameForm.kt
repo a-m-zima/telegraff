@@ -17,8 +17,8 @@ class NameForm(
 
     step<Int>("length")
     {
-        question {
-            telegramBot.execute(SendMessage(it.chatId, "Какой длины?").parseMode(ParseMode.Markdown))
+        question { _, state ->
+            telegramBot.execute(SendMessage(state.chatId, "Какой длины?").parseMode(ParseMode.Markdown))
         }
 
         validation {
@@ -31,10 +31,10 @@ class NameForm(
     }
 
 
-    process {
-        val length = it.answers["length"] as Int
+    process { _, state ->
+        val length = state.answers["length"] as Int
         val name = nameGenerator.generateName(length)
 
-        telegramBot.execute(SendMessage(it.chatId, "Сгенерированное имя: $name").parseMode(ParseMode.Markdown))
+        telegramBot.execute(SendMessage(state.chatId, "Сгенерированное имя: $name").parseMode(ParseMode.Markdown))
     }
 })

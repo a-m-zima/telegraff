@@ -1,7 +1,6 @@
 package me.ruslanys.telegraff.sample.forms
 
 import com.pengrad.telegrambot.TelegramBot
-import com.pengrad.telegrambot.model.request.ParseMode
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove
 import com.pengrad.telegrambot.request.SendMessage
@@ -16,22 +15,21 @@ enum class PaymentMethod {
 @Component
 class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
-        question {
-            telegramBot.execute(SendMessage(it.chatId, "Откуда поедем?").parseMode(ParseMode.Markdown))
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Откуда поедем?"))
         }
     }
 
     step<String>("locationTo") {
-        question {
-            telegramBot.execute(SendMessage(it.chatId, "Куда поедем?").parseMode(ParseMode.Markdown))
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Куда поедем?"))
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
-        question {
+        question { message, state ->
             telegramBot.execute(
-                SendMessage(it.chatId, "Оплата картой или наличкой?")
-                    .parseMode(ParseMode.Markdown)
+                SendMessage(state.chatId, "@${message.from().username()} Оплата картой или наличкой?")
                     .replyMarkup(
                         ReplyKeyboardMarkup("картой", "наличкой")
                             .resizeKeyboard(true)
@@ -49,22 +47,21 @@ class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "та
         }
     }
 
-    process {
-        val from = it.answers["locationFrom"] as String
-        val to = it.answers["locationTo"] as String
-        val paymentMethod = it.answers["paymentMethod"] as PaymentMethod
+    process { message, state ->
+        val from = state.answers["locationFrom"] as String
+        val to = state.answers["locationTo"] as String
+        val paymentMethod = state.answers["paymentMethod"] as PaymentMethod
 
         // Business logic
 
         telegramBot.execute(
             SendMessage(
-                it.chatId,
+                state.chatId,
                 """
-                Заказ принят от пользователя #${it.fromId}.
+                Заказ принят от пользователя @${message.from().username()}.
                 Поедем из $from в $to. Оплата $paymentMethod.
                 """.trimIndent()
-            ).parseMode(ParseMode.Markdown)
-                .replyMarkup(ReplyKeyboardRemove())
+            ).replyMarkup(ReplyKeyboardRemove())
         )
     }
 })

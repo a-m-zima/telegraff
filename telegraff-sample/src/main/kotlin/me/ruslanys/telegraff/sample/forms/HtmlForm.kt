@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class HtmlForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/html"), {
 
-    process {
-        telegramBot.execute(SendMessage(it.chatId, "Привет, <b>пользователь!</b>").parseMode(ParseMode.HTML))
+    process { _, state ->
+        telegramBot.execute(SendMessage(state.chatId, "Привет, <b>пользователь!</b>").parseMode(ParseMode.HTML))
     }
 })

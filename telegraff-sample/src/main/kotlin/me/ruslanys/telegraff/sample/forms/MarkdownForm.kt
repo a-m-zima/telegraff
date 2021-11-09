@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class MarkdownForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/markdown"), {
 
-    process {
-        telegramBot.execute(SendMessage(it.chatId, "Привет, *пользователь*!").parseMode(ParseMode.Markdown))
+    process { _, state ->
+        telegramBot.execute(SendMessage(state.chatId, "Привет, *пользователь*!").parseMode(ParseMode.Markdown))
     }
 })

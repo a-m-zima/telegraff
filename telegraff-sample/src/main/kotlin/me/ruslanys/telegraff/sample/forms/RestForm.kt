@@ -38,9 +38,9 @@ class RestForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/rest"), {
         .rootUri("https://httpbin.org")
         .build()
 
-    process {
+    process { _, state ->
         val response = rest.getForObject<HttpbinResponse>("/get")
 
-        telegramBot.execute(SendMessage(it.chatId, "Your IP: ${response.origin}").parseMode(ParseMode.Markdown))
+        telegramBot.execute(SendMessage(state.chatId, "Your IP: ${response.origin}").parseMode(ParseMode.Markdown))
     }
 })

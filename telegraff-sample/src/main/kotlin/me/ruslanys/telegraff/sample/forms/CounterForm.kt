@@ -12,8 +12,8 @@ class CounterForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/counter")
 
     step<Int>("counter") {
 
-        question {
-            telegramBot.execute(SendMessage(it.chatId, "До скольки нужно посчитать?").parseMode(ParseMode.Markdown))
+        question { _, state ->
+            telegramBot.execute(SendMessage(state.chatId, "До скольки нужно посчитать?").parseMode(ParseMode.Markdown))
         }
 
         validation {
@@ -25,11 +25,11 @@ class CounterForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/counter")
         }
     }
 
-    process {
-        val amount = it.answers["counter"] as Int
+    process { _, state ->
+        val amount = state.answers["counter"] as Int
 
         for (i in 1..amount) {
-            telegramBot.execute(SendMessage(it.chatId, i.toString()).parseMode(ParseMode.Markdown))
+            telegramBot.execute(SendMessage(state.chatId, i.toString()).parseMode(ParseMode.Markdown))
         }
     }
 })

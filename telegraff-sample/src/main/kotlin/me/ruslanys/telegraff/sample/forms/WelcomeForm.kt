@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component
 @Component
 class WelcomeForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/start"), {
 
-    process {
-        telegramBot.execute(SendMessage(it.chatId, "Привет!").parseMode(ParseMode.Markdown))
+    process { _, state ->
+        telegramBot.execute(SendMessage(state.chatId, "Привет!").parseMode(ParseMode.Markdown))
     }
 })

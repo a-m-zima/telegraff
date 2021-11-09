@@ -28,7 +28,7 @@ class PhotoForm(
     @Value("classpath:img/sample.png") sample: Resource,
 ) : TelegrambotForm(listOf("/photo", "фото"), {
 
-    process {
-        telegramBot.execute(SendPhoto(it.chatId, sample.file))
+    process { _, state ->
+        telegramBot.execute(SendPhoto(state.chatId, sample.file))
     }
 })
