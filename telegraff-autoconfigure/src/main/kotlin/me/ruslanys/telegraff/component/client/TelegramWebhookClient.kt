@@ -55,7 +55,7 @@ class TelegramWebhookClient(
 
     override fun onUpdate(update: Update) {
         logger.info("Got a new event: {}", update)
-        compositeMessageHandler.handle(update.message())
+        update.message()?.let { compositeMessageHandler.handle(it) }
     }
 
     @RequestMapping("#{telegramProperties.getWebhookEndpointUrl()}")

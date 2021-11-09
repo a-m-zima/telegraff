@@ -54,7 +54,7 @@ class TelegramPollingClient(
 
     override fun onUpdate(update: Update) {
         logger.info("Got a new event: {}", update)
-        compositeMessageHandler.handle(update.message())
+        update.message()?.let { compositeMessageHandler.handle(it) }
     }
 
     private inner class Client : Thread("PollingClient") {
