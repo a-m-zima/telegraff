@@ -17,13 +17,12 @@ package me.ruslanys.telegraff.component.telegrambot
 
 import com.pengrad.telegrambot.model.Message
 import me.ruslanys.telegraff.core.data.FormStorage
-import me.ruslanys.telegraff.core.dsl.Form
 
 open class TelegrambotFormStorage(
-    forms: List<Form<Message, TelegrambotFormState>>
+    forms: List<TelegrambotForm>
 ) : FormStorage<Message, TelegrambotFormState> {
 
-    private val forms: MutableMap<String, Form<Message, TelegrambotFormState>> = hashMapOf()
+    private val forms: MutableMap<String, TelegrambotForm> = hashMapOf()
 
     init {
         for (form in forms) {
@@ -36,7 +35,7 @@ open class TelegrambotFormStorage(
         }
     }
 
-    override fun findByMessage(message: Message): Form<Message, TelegrambotFormState>? {
+    override fun findByMessage(message: Message): TelegrambotForm? {
         val messageText = message.text()?.lowercase() ?: return null
         val item = forms.entries.firstOrNull {
             messageText.startsWith(it.key)

@@ -24,9 +24,11 @@ import me.ruslanys.telegraff.component.client.TelegramWebhookClient
 import me.ruslanys.telegraff.component.telegrambot.*
 import me.ruslanys.telegraff.core.data.FormStateStorage
 import me.ruslanys.telegraff.core.data.FormStorage
-import me.ruslanys.telegraff.core.dsl.Form
 import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
-import me.ruslanys.telegraff.core.handler.*
+import me.ruslanys.telegraff.core.handler.CompositeMessageHandler
+import me.ruslanys.telegraff.core.handler.ConditionalMessageHandler
+import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
+import me.ruslanys.telegraff.core.handler.FormMessageHandler
 import okhttp3.OkHttpClient
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
@@ -98,7 +100,7 @@ open class TelegraffServletWebConfiguration(private val telegramProperties: Tele
 
     @Bean
     @ConditionalOnMissingBean(FormStorage::class)
-    open fun formStorage(forms: List<Form<Message, TelegrambotFormState>>): FormStorage<Message, TelegrambotFormState> {
+    open fun formStorage(forms: List<TelegrambotForm>): FormStorage<Message, TelegrambotFormState> {
         return TelegrambotFormStorage(forms)
     }
 
