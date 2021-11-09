@@ -138,7 +138,7 @@ class IntegrationTest : IntegrationSpec({
 
             tgMessage shouldContainExactly listOf(
                 """
-                Заказ принят от пользователя #123.
+                Заказ принят от пользователя #111.
                 Поедем из Дом в Работа. Оплата CARD.
                 """.trimIndent()
             )

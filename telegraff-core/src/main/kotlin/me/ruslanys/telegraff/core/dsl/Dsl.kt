@@ -20,10 +20,10 @@ import me.ruslanys.telegraff.core.data.FormState
 import me.ruslanys.telegraff.core.exception.FormException
 
 @TelegraffDsl
-class FormDsl<M : Any, ST : FormState<M,ST>> {
+class FormDsl<M : Any, ST : FormState<M, ST>> {
 
     internal val stepDslList: MutableList<StepDsl<M, *, ST>> = arrayListOf()
-    internal var process: ProcessBlock<ST>? = null
+    internal var process: ProcessBlock<M, ST>? = null
 
 
     fun <T : Any> step(key: String, init: StepDsl<M, T, ST>.() -> Unit): StepDsl<M, T, ST> {
@@ -32,7 +32,7 @@ class FormDsl<M : Any, ST : FormState<M,ST>> {
         return dsl
     }
 
-    fun process(processor: ProcessBlock<ST>) {
+    fun process(processor: ProcessBlock<M, ST>) {
         this.process = processor
     }
 
@@ -56,15 +56,15 @@ class FormDsl<M : Any, ST : FormState<M,ST>> {
 }
 
 @TelegraffDsl
-class StepDsl<M : Any, T : Any, ST : FormState<M,ST>>(val key: String) {
+class StepDsl<M : Any, T : Any, ST : FormState<M, ST>>(val key: String) {
 
-    private var question: QuestionBlock<ST>? = null
+    private var question: QuestionBlock<M, ST>? = null
 
     private var validation: ValidationBlock<M, T>? = null
     private var next: NextStepBlock<ST>? = null
 
 
-    fun question(question: QuestionBlock<ST>) {
+    fun question(question: QuestionBlock<M, ST>) {
         this.question = question
     }
 
@@ -90,8 +90,8 @@ class StepDsl<M : Any, T : Any, ST : FormState<M,ST>>(val key: String) {
 }
 
 
-typealias  ProcessBlock<ST> = (ST) -> Unit
+typealias  ProcessBlock<M, ST> = (message: M, state: ST) -> Unit
 
-typealias QuestionBlock<ST> = (ST) -> Unit
-typealias ValidationBlock<M, T> = (M) -> T
-typealias NextStepBlock<ST> = (ST) -> String?
+typealias QuestionBlock<M, ST> = (message: M, state: ST) -> Unit
+typealias ValidationBlock<M, T> = (message: M) -> T
+typealias NextStepBlock<ST> = (state: ST) -> String?

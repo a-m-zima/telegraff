@@ -22,7 +22,7 @@ import me.ruslanys.telegraff.core.service.TelegramApi
 
 class WelcomeForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryFormState>(listOf("/start"), {
 
-    process {
-        telegramApi.sendMessage(it.chatId, "Привет!")
+    process { _, state ->
+        telegramApi.sendMessage(state.chatId, "Привет!")
     }
 })

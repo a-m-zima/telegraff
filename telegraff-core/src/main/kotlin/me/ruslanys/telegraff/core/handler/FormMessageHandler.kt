@@ -44,20 +44,20 @@ class FormMessageHandler<M : Any, ST : FormState<M, ST>>(
             val newState = formStateStorage.create(message, form)
 
             try {
-                handleQuestion(newState)
+                handleQuestion(message, newState)
             } catch (e: Exception) {
                 handleFatalException(message, newState, e)
             }
         } else {
             try {
-                handleContinuation(state, message)
+                handleContinuation(message, state)
             } catch (e: Exception) {
                 handleFatalException(message, state, e)
             }
         }
     }
 
-    private fun handleContinuation(state: ST, message: M) {
+    private fun handleContinuation(message: M, state: ST) {
         val currentStep = state.currentStep!!
 
         // validation
@@ -75,21 +75,21 @@ class FormMessageHandler<M : Any, ST : FormState<M, ST>>(
         // next step
         formStateStorage.doNextStep(state)
 
-        handleQuestion(state)
+        handleQuestion(message, state)
     }
 
-    private fun handleQuestion(state: ST) {
+    private fun handleQuestion(message: M, state: ST) {
         val currentStep = state.currentStep
 
         if (currentStep != null) {
-            currentStep.question(state)
+            currentStep.question(message, state)
         } else {
-            handleFinalization(state)
+            handleFinalization(message, state)
         }
     }
 
-    private fun handleFinalization(state: ST) {
-        state.form.process(state)
+    private fun handleFinalization(message: M, state: ST) {
+        state.form.process(message, state)
         formStateStorage.remove(state)
     }
 

@@ -22,7 +22,7 @@ open class Form<M : Any, ST : FormState<M, ST>>(val commands: List<String>, init
 
     private val steps: Map<String, Step<M, *, ST>>
     private val initialStepKey: String?
-    val process: ProcessBlock<ST>
+    val process: ProcessBlock<M, ST>
 
     init {
         val dsl = FormDsl<M, ST>().apply(init)

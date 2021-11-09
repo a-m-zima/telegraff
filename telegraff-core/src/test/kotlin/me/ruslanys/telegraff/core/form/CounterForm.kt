@@ -25,8 +25,8 @@ class CounterForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryForm
 
     step<Int>("counter") {
 
-        question {
-            telegramApi.sendMessage(it.chatId, "До скольки нужно посчитать?")
+        question { _, state ->
+            telegramApi.sendMessage(state.chatId, "До скольки нужно посчитать?")
         }
 
         validation {
@@ -38,11 +38,11 @@ class CounterForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryForm
         }
     }
 
-    process {
-        val amount = it.answers["counter"] as Int
+    process { _, state ->
+        val amount = state.answers["counter"] as Int
 
         for (i in 1..amount) {
-            telegramApi.sendMessage(it.chatId, i.toString())
+            telegramApi.sendMessage(state.chatId, i.toString())
         }
     }
 })

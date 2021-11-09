@@ -60,9 +60,9 @@ class TaxiFormTests : FreeSpec({
 
 
     "location from question" {
-        val step: Step<*, String, InmemoryFormState> = form.getStep("locationFrom")
+        val step: Step<TelegramMessage, String, InmemoryFormState> = form.getStep("locationFrom")
 
-        step.question(state)
+        step.question(TelegramMessageImpl(TelegramChat(0, ""), TelegramUser(0), "any mess"), state)
 
         tgMessage.captured shouldBe "Откуда поедем?"
     }
@@ -85,6 +85,7 @@ class TaxiFormTests : FreeSpec({
 
     "process" {
         form.process(
+            TelegramMessageImpl(TelegramChat(0, ""), TelegramUser(0), "картой"),
             InmemoryFormState(state.chatId, state.fromId, state.form).apply {
                 answers.putAll(
                     mapOf(
@@ -96,7 +97,7 @@ class TaxiFormTests : FreeSpec({
             })
 
         tgMessage.captured shouldBe """
-            Заказ принят от пользователя #-1.
+            Заказ принят от пользователя #111.
             Поедем из Дом в Работа. Оплата CARD.
         """.trimIndent()
 

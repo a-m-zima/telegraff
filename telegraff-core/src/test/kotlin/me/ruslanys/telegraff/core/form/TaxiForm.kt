@@ -27,20 +27,20 @@ enum class PaymentMethod {
 
 class TaxiForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryFormState>(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
-        question {
-            telegramApi.sendMessage(it.chatId, "Откуда поедем?")
+        question { _, state ->
+            telegramApi.sendMessage(state.chatId, "Откуда поедем?")
         }
     }
 
     step<String>("locationTo") {
-        question {
-            telegramApi.sendMessage(it.chatId, "Куда поедем?")
+        question { _, state ->
+            telegramApi.sendMessage(state.chatId, "Куда поедем?")
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
-        question {
-            telegramApi.sendMessage(it.chatId, "Оплата картой или наличкой?")
+        question { _, state ->
+            telegramApi.sendMessage(state.chatId, "Оплата картой или наличкой?")
         }
 
         validation {
@@ -52,17 +52,17 @@ class TaxiForm(telegramApi: TelegramApi) : Form<TelegramMessage, InmemoryFormSta
         }
     }
 
-    process {
-        val from = it.answers["locationFrom"] as String
-        val to = it.answers["locationTo"] as String
-        val paymentMethod = it.answers["paymentMethod"] as PaymentMethod
+    process { _, state ->
+        val from = state.answers["locationFrom"] as String
+        val to = state.answers["locationTo"] as String
+        val paymentMethod = state.answers["paymentMethod"] as PaymentMethod
 
         // Business logic
 
         telegramApi.sendMessage(
-            it.chatId,
+            state.chatId,
             """
-            Заказ принят от пользователя #${it.chatId}.
+            Заказ принят от пользователя #${state.fromId}.
             Поедем из $from в $to. Оплата $paymentMethod.
             """.trimIndent()
         )

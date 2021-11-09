@@ -19,7 +19,7 @@ import me.ruslanys.telegraff.core.data.FormState
 
 class Step<M : Any, T : Any, ST : FormState<M,ST>>(
     val key: String,
-    val question: QuestionBlock<ST>,
+    val question: QuestionBlock<M, ST>,
     val validation: ValidationBlock<M, T>,
     val next: NextStepBlock<ST>
 ) {
