@@ -4,7 +4,7 @@
 
 ## Подключение
 
-```
+```groovy
 repositories {
     maven {
         url "https://dl.bintray.com/ruslanys/maven"
@@ -14,13 +14,13 @@ repositories {
 
 Gradle:
 
-```
+```groovy
 compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
 ```
 
 Maven:
 
-```
+```xml
 <dependency>
     <groupId>me.ruslanys.telegraff</groupId>
     <artifactId>telegraff-starter</artifactId>
@@ -68,7 +68,7 @@ Maven:
 
 ## Настройка
 
-```
+```properties
 telegram.access-key=                  # api key
 telegram.mode=                        # polling (default), webhook
 telegram.webhook-base-url=            # required for webhook mode
@@ -77,34 +77,49 @@ telegram.webhook-endpoint-url=        # optional
 
 ## Использование
 
-Положите файл с расширением `.kts` в папку с ресурсами `handlers`:
-`resources/handlers/ExampleHandler.kts`.
-
 ```kotlin
+package me.ruslanys.telegraff.sample.forms
+
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove
+import com.pengrad.telegrambot.request.SendMessage
+import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
+import me.ruslanys.telegraff.core.exception.ValidationException
+import org.springframework.stereotype.Component
+
 enum class PaymentMethod {
     CARD, CASH
 }
 
-handler("/taxi", "такси") {
+@Component
+class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
-        question {
-            MarkdownMessage("Откуда поедем?")
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Откуда поедем?"))
         }
     }
 
     step<String>("locationTo") {
-        question {
-            MarkdownMessage("Куда поедем?")
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Куда поедем?"))
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
-        question {
-            MarkdownMessage("Оплата картой или наличкой?", "Картой", "Наличкой")
+        question { message, state ->
+            telegramBot.execute(
+                SendMessage(state.chatId, "@${message.from().username()} Оплата картой или наличкой?")
+                    .replyMarkup(
+                        ReplyKeyboardMarkup("картой", "наличкой")
+                            .resizeKeyboard(true)
+                            .selective(true)
+                    )
+            )
         }
 
         validation {
-            when (it.toLowerCase()) {
+            when (it.text()!!.lowercase()) {
                 "картой" -> PaymentMethod.CARD
                 "наличкой" -> PaymentMethod.CASH
                 else -> throw ValidationException("Пожалуйста, выбери один из вариантов")
@@ -112,18 +127,22 @@ handler("/taxi", "такси") {
         }
     }
 
-    process { state, answers ->
-        val from = answers["locationFrom"] as String
-        val to = answers["locationTo"] as String
-        val paymentMethod = answers["paymentMethod"] as PaymentMethod
+    process { message, state ->
+        val from = state.answers["locationFrom"] as String
+        val to = state.answers["locationTo"] as String
+        val paymentMethod = state.answers["paymentMethod"] as PaymentMethod
 
         // Business logic
 
-        MarkdownMessage("Заказ принят. Поедем из $from в $to. Оплата $paymentMethod.")
+        telegramBot.execute(
+            SendMessage(
+                state.chatId,
+                """
+                Заказ принят от пользователя @${message.from().username()}.
+                Поедем из $from в $to. Оплата $paymentMethod.
+                """.trimIndent()
+            ).replyMarkup(ReplyKeyboardRemove())
+        )
     }
-}
+})
 ```
-
-## Устройство
-
-![Обработка сообщений](docs/processing-diagram.png "Обработка сообщений")
