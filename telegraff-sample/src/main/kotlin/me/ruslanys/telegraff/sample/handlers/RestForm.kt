@@ -18,9 +18,7 @@ package me.ruslanys.telegraff.sample.handlers
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.request.ParseMode
 import com.pengrad.telegrambot.request.SendMessage
-import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
-import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.stereotype.Component
 import org.springframework.web.client.RestTemplate
@@ -34,15 +32,16 @@ data class HttpbinResponse(
 )
 
 @Component
-class RestForm(telegramBot: TelegramBot) : Form<TelegramMessage, InmemoryFormState>(listOf("/rest"), {
+class RestForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/rest"), {
 
     val rest: RestTemplate = RestTemplateBuilder()
         .rootUri("https://httpbin.org")
         .build()
 
     process {
+        // TODO dont work
         val response = rest.getForObject<HttpbinResponse>("/get")
 
-        telegramBot.execute(SendMessage(it.chatId, "Your IP: ${response.origin}").parseMode(ParseMode.MarkdownV2))
+        telegramBot.execute(SendMessage(it.chatId, "Your IP: ${response.origin}").parseMode(ParseMode.Markdown))
     }
 })

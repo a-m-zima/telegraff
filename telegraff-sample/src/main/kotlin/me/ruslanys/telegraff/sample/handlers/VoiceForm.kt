@@ -17,9 +17,7 @@ package me.ruslanys.telegraff.sample.handlers
 
 import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.request.SendVoice
-import me.ruslanys.telegraff.core.data.inmemory.InmemoryFormState
-import me.ruslanys.telegraff.core.dsl.Form
-import me.ruslanys.telegraff.core.dto.TelegramMessage
+import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.stereotype.Component
@@ -28,9 +26,10 @@ import org.springframework.stereotype.Component
 class VoiceForm(
     telegramBot: TelegramBot,
     @Value("audio/sample.mp3") sample: Resource,
-) : Form<TelegramMessage, InmemoryFormState>(listOf("/voice", "voice"), {
+) : TelegrambotForm(listOf("/voice", "voice"), {
 
     process {
+        // TODO dont work
         telegramBot.execute(SendVoice(it.chatId, sample.file))
     }
 })
