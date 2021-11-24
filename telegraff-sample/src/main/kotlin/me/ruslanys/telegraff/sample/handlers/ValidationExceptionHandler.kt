@@ -1,7 +1,7 @@
 package me.ruslanys.telegraff.sample.handlers
 
 import com.pengrad.telegrambot.TelegramBot
-import com.pengrad.telegrambot.model.Message
+import org.telegram.telegrambots.meta.api.objects.Message
 import com.pengrad.telegrambot.model.request.ParseMode
 import com.pengrad.telegrambot.request.SendMessage
 import me.ruslanys.telegraff.component.telegrambot.TelegrambotFormState

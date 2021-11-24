@@ -84,7 +84,7 @@ import com.pengrad.telegrambot.TelegramBot
 import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
 import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove
 import com.pengrad.telegrambot.request.SendMessage
-import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
+import me.ruslanys.telegraff.component.telegrambots.TelegrambotForm
 import me.ruslanys.telegraff.core.exception.ValidationException
 import org.springframework.stereotype.Component
 
