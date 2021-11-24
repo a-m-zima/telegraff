@@ -8,8 +8,7 @@
 
     <modules>
         <module>telegraff-core</module>
-        <module>telegraff-autoconfigure</module>
-        <module>telegraff-starter</module>
+        <module>telegraff-spring-boot-starter</module>
     </modules>
 
     <groupId>com.github.xzima</groupId>
@@ -107,7 +106,7 @@
         <kotest.version>4.6.3</kotest.version>
         <kotlin.logging.version>2.0.11</kotlin.logging.version>
         <logback.version>1.2.6</logback.version>
-        <telegram.api.version>5.3.0</telegram.api.version>
+        <telegrambots.version>5.4.0</telegrambots.version>
         <springmockk.version>3.0.1</springmockk.version>
         <mockk.version>1.12.0</mockk.version>
         <!--================================================-->
@@ -479,10 +478,10 @@
             </dependency>
             <!-- telegram -->
             <dependency>
-                <!-- https://github.com/pengrad/java-telegram-bot-api -->
-                <groupId>com.github.pengrad</groupId>
-                <artifactId>java-telegram-bot-api</artifactId>
-                <version>${telegram.api.version}</version>
+                <!-- https://github.com/rubenlagus/TelegramBots -->
+                <groupId>org.telegram</groupId>
+                <artifactId>telegrambots-spring-boot-starter</artifactId>
+                <version>${telegrambots.version}</version>
             </dependency>
             <!-- kotlin -->
             <dependency>
