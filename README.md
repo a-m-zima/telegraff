@@ -1,31 +1,58 @@
 ![Telegraff](docs/logo.png "Logo")
 
+[![JitPack](https://img.shields.io/jitpack/v/github/xzima/telegraff?style=for-the-badge)](https://jitpack.io/#xzima/telegraff)
+
 <!-- Описание -->
 
 ## Подключение
 
-```groovy
-repositories {
-    maven {
-        url "https://dl.bintray.com/ruslanys/maven"
-    }
-}
-```
-
 Gradle:
 
 ```groovy
-compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+dependencies {
+    implementation 'com.github.xzima:telegraff-core:2.0.0'
+    implementation 'com.github.xzima:telegraff-autoconfigure:2.0.0'
+    implementation 'com.github.xzima:telegraff-starter:2.0.0'
+}
 ```
 
 Maven:
 
 ```xml
-<dependency>
-    <groupId>me.ruslanys.telegraff</groupId>
-    <artifactId>telegraff-starter</artifactId>
-    <version>1.0.0</version>
-</dependency>
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-core</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-autoconfigure</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-starter</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Сборка
@@ -45,12 +72,16 @@ Maven:
 ### Релиз
 
 ```shell
-./mvnw release:prepare  # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
-## отправка релиза с тегом в github
-## указать в pom.xml в fromRef и toRef значения предыдущего и нового релизов соответственно
+./mvnw release:prepare        # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
+git push --tags               # отправка релиза с тегом в github
+## указать в pom.xml в fromRef предыдущий тег релиза, а в toRef -- текущий(выводимый) тег релиза
+./mvnw compile -Pchangelog    #обновление changelog
+## тут можно ещё обновить доку например или readme
+git commit --amend # добавление changelog в последний коммит
+git push --tags --force       # обновление ветки github
 ./mvnw compile -Prelease-note # генерация release-note
 ## создать релиз вручную указав имя как версию и поместив в тело сгенерированный RELEASE_NOTES.md без заголовков
-./mvnw clean release:clean # очистка метаданных
+./mvnw clean release:clean    # очистка метаданных
 ```
 
 ### Обновление changelog
@@ -69,10 +100,10 @@ Maven:
 ## Настройка
 
 ```properties
-telegram.access-key=                  # api key
-telegram.mode=                        # polling (default), webhook
-telegram.webhook-base-url=            # required for webhook mode
-telegram.webhook-endpoint-url=        # optional
+telegram.access-key=# api key
+telegram.mode=# polling (default), webhook
+telegram.webhook-base-url=# required for webhook mode
+telegram.webhook-endpoint-url=# optional
 ```
 
 ## Использование
