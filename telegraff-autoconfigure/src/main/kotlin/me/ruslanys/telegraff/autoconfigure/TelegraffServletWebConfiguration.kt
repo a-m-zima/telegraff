@@ -15,27 +15,29 @@
  */
 package me.ruslanys.telegraff.autoconfigure
 
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.model.Message
 import me.ruslanys.telegraff.autoconfigure.property.TelegramProperties
-import me.ruslanys.telegraff.core.client.TelegramClient
-import me.ruslanys.telegraff.core.client.TelegramPollingClient
-import me.ruslanys.telegraff.core.client.TelegramWebhookClient
-import me.ruslanys.telegraff.core.component.DefaultTelegramApi
-import me.ruslanys.telegraff.core.component.TelegramApi
-import me.ruslanys.telegraff.core.dsl.DefaultHandlersFactory
-import me.ruslanys.telegraff.core.dsl.HandlersFactory
-import me.ruslanys.telegraff.core.filter.*
+import me.ruslanys.telegraff.component.client.TelegramClient
+import me.ruslanys.telegraff.component.client.TelegramPollingClient
+import me.ruslanys.telegraff.component.client.TelegramWebhookClient
+import me.ruslanys.telegraff.component.telegrambot.*
+import me.ruslanys.telegraff.core.data.FormStateStorage
+import me.ruslanys.telegraff.core.data.FormStorage
+import me.ruslanys.telegraff.core.exception.AbstractFormExceptionHandler
+import me.ruslanys.telegraff.core.handler.CompositeMessageHandler
+import me.ruslanys.telegraff.core.handler.ConditionalMessageHandler
+import me.ruslanys.telegraff.core.handler.DefaultCompositeMessageHandler
+import me.ruslanys.telegraff.core.handler.FormMessageHandler
+import okhttp3.OkHttpClient
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication
-import org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
 import org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
-import org.springframework.boot.web.client.RestTemplateBuilder
-import org.springframework.context.ApplicationEventPublisher
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.support.GenericApplicationContext
 
 /**
  * Configuration for Telegraff when used in a servlet web context.
@@ -44,14 +46,14 @@ import org.springframework.context.support.GenericApplicationContext
  */
 @Configuration
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-@ConditionalOnClass(TelegramPollingClient::class, TelegramWebhookClient::class)
-@AutoConfigureAfter(WebMvcAutoConfiguration::class, RestTemplateAutoConfiguration::class)
-open class TelegraffServletWebConfiguration(val telegramProperties: TelegramProperties) {
+@ConditionalOnClass(CompositeMessageHandler::class)
+@AutoConfigureAfter(WebMvcAutoConfiguration::class, OkHttpClientFactory::class)
+open class TelegraffServletWebConfiguration(private val telegramProperties: TelegramProperties) {
 
     @Bean
-    @ConditionalOnMissingBean(TelegramApi::class)
-    open fun telegramApi(restTemplateBuilder: RestTemplateBuilder): TelegramApi {
-        return DefaultTelegramApi(telegramProperties.accessKey, restTemplateBuilder)
+    @ConditionalOnMissingBean(TelegramBot::class)
+    open fun telegramApi(client: OkHttpClient): TelegramBot {
+        return TelegramBot.Builder(telegramProperties.accessKey).okHttpClient(client).build()
     }
 
     @Bean
@@ -64,18 +66,18 @@ open class TelegraffServletWebConfiguration(val telegramProperties: TelegramProp
     @ConditionalOnMissingBean(TelegramClient::class)
     @ConditionalOnProperty(name = ["telegram.mode"], havingValue = "polling", matchIfMissing = true)
     open fun telegramPollingClient(
-        telegramApi: TelegramApi,
-        publisher: ApplicationEventPublisher
+        telegramBot: TelegramBot,
+        compositeMessageHandler: CompositeMessageHandler<Message>,
     ): TelegramPollingClient {
-        return TelegramPollingClient(telegramApi, publisher)
+        return TelegramPollingClient(telegramBot, compositeMessageHandler)
     }
 
     @Bean
     @ConditionalOnMissingBean(TelegramClient::class)
     @ConditionalOnProperty(name = ["telegram.mode"], havingValue = "webhook")
     open fun telegramWebhookClient(
-        telegramApi: TelegramApi,
-        publisher: ApplicationEventPublisher
+        telegramBot: TelegramBot,
+        compositeMessageHandler: CompositeMessageHandler<Message>,
     ): TelegramWebhookClient {
         // TODO: Reconfigure with one of the following approaches
         /*
@@ -91,42 +93,60 @@ open class TelegraffServletWebConfiguration(val telegramProperties: TelegramProp
             }
         }
         */
-        return TelegramWebhookClient(telegramApi, publisher, telegramProperties.getWebhookUrl())
+        return TelegramWebhookClient(telegramBot, compositeMessageHandler, telegramProperties.getWebhookUrl())
     }
 
     // endregion
 
     @Bean
-    @ConditionalOnMissingBean(HandlersFactory::class)
-    open fun handlersFactory(context: GenericApplicationContext): DefaultHandlersFactory {
-        return DefaultHandlersFactory(context, telegramProperties.handlersPath)
+    @ConditionalOnMissingBean(FormStorage::class)
+    open fun formStorage(forms: List<TelegrambotForm>): FormStorage<Message, TelegrambotFormState> {
+        return TelegrambotFormStorage(forms)
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(FormStateStorage::class)
+    open fun formStorageStorage(): FormStateStorage<Message, TelegrambotFormState> {
+        return TelegrambotFormStateStorage()
     }
 
     // region Filters
 
     @Bean
-    @ConditionalOnMissingBean(TelegramFiltersFactory::class, TelegramFilterProcessor::class)
-    open fun telegramFiltersFactory(filters: List<TelegramFilter>): DefaultTelegramFiltersFactory {
-        return DefaultTelegramFiltersFactory(filters)
+    @ConditionalOnMissingBean(CompositeMessageHandler::class)
+    open fun compositeMessageHandler(
+        handlers: List<ConditionalMessageHandler<Message>>,
+        finalizer: FinalMessageHandler,
+    ): CompositeMessageHandler<Message> {
+        return DefaultCompositeMessageHandler(handlers, finalizer)
     }
 
     @Bean
-    @ConditionalOnMissingBean(HandlersFilter::class)
-    open fun handlersFilter(telegramApi: TelegramApi, handlersFactory: HandlersFactory): HandlersFilter {
-        return HandlersFilter(telegramApi, handlersFactory)
+    @ConditionalOnMissingBean(FormMessageHandler::class)
+    open fun handlersFilter(
+        formStorage: FormStorage<Message, TelegrambotFormState>,
+        formStateStorage: FormStateStorage<Message, TelegrambotFormState>,
+        exceptionHandlers: List<AbstractFormExceptionHandler<Message, TelegrambotFormState, out Exception>>,
+    ): FormMessageHandler<Message, TelegrambotFormState> {
+        return FormMessageHandler(formStorage, formStateStorage, exceptionHandlers)
     }
 
     @Bean
-    @ConditionalOnMissingBean(CancelFilter::class)
-    open fun cancelFilter(telegramApi: TelegramApi, handlersFilter: HandlersFilter): CancelFilter {
-        return CancelFilter(telegramApi, handlersFilter)
+    @ConditionalOnMissingBean(AbstractTelegrambotCancelMessageHandler::class)
+    open fun cancelFilter(
+        formStateStorage: FormStateStorage<Message, TelegrambotFormState>,
+        telegramBot: TelegramBot,
+    ): AbstractTelegrambotCancelMessageHandler {
+        return TelegrambotCancelMessageHandler(formStateStorage, telegramBot)
     }
 
     @Bean
-    @ConditionalOnMissingBean(UnresolvedMessageFilter::class)
+    @ConditionalOnMissingBean(FinalMessageHandler::class)
     @ConditionalOnProperty(name = ["telegram.unresolved-filter.enabled"], matchIfMissing = true)
-    open fun unresolvedMessageFilter(telegramApi: TelegramApi): UnresolvedMessageFilter {
-        return UnresolvedMessageFilter(telegramApi)
+    open fun finalMessageHandler(
+        telegramBot: TelegramBot,
+    ): FinalMessageHandler {
+        return FinalMessageHandler(telegramBot)
     }
 
     // endregion

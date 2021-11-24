@@ -1,31 +1,58 @@
 ![Telegraff](docs/logo.png "Logo")
 
+[![JitPack](https://img.shields.io/jitpack/v/github/xzima/telegraff?style=for-the-badge)](https://jitpack.io/#xzima/telegraff)
+
 <!-- Описание -->
 
 ## Подключение
 
-```
-repositories {
-    maven {
-        url "https://dl.bintray.com/ruslanys/maven"
-    }
-}
-```
-
 Gradle:
 
-```
-compile("me.ruslanys.telegraff:telegraff-starter:1.0.0")
+```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+dependencies {
+    implementation 'com.github.xzima:telegraff-core:2.0.0'
+    implementation 'com.github.xzima:telegraff-autoconfigure:2.0.0'
+    implementation 'com.github.xzima:telegraff-starter:2.0.0'
+}
 ```
 
 Maven:
 
+```xml
+
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
 ```
-<dependency>
-    <groupId>me.ruslanys.telegraff</groupId>
-    <artifactId>telegraff-starter</artifactId>
-    <version>1.0.0</version>
-</dependency>
+
+```xml
+
+<dependencies>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-core</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-autoconfigure</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+    <dependency>
+        <groupId>com.github.xzima</groupId>
+        <artifactId>telegraff-starter</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+</dependencies>
 ```
 
 ## Сборка
@@ -45,12 +72,16 @@ Maven:
 ### Релиз
 
 ```shell
-./mvnw release:prepare  # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
-## отправка релиза с тегом в github
-## указать в pom.xml в fromRef и toRef значения предыдущего и нового релизов соответственно
+./mvnw release:prepare        # проверка релиза, обновление версий на релиз, создание тега, обновление версии на следующий snapshot
+git push --tags               # отправка релиза с тегом в github
+## указать в pom.xml в fromRef предыдущий тег релиза, а в toRef -- текущий(выводимый) тег релиза
+./mvnw compile -Pchangelog    #обновление changelog
+## тут можно ещё обновить доку например или readme
+git commit --amend # добавление changelog в последний коммит
+git push --tags --force       # обновление ветки github
 ./mvnw compile -Prelease-note # генерация release-note
 ## создать релиз вручную указав имя как версию и поместив в тело сгенерированный RELEASE_NOTES.md без заголовков
-./mvnw clean release:clean # очистка метаданных
+./mvnw clean release:clean    # очистка метаданных
 ```
 
 ### Обновление changelog
@@ -68,43 +99,58 @@ Maven:
 
 ## Настройка
 
-```
-telegram.access-key=                  # api key
-telegram.mode=                        # polling (default), webhook
-telegram.webhook-base-url=            # required for webhook mode
-telegram.webhook-endpoint-url=        # optional
+```properties
+telegram.access-key=# api key
+telegram.mode=# polling (default), webhook
+telegram.webhook-base-url=# required for webhook mode
+telegram.webhook-endpoint-url=# optional
 ```
 
 ## Использование
 
-Положите файл с расширением `.kts` в папку c ресурсами `handlers`:
-`resources/handlers/ExampleHandler.kts`.
-
 ```kotlin
+package me.ruslanys.telegraff.sample.forms
+
+import com.pengrad.telegrambot.TelegramBot
+import com.pengrad.telegrambot.model.request.ReplyKeyboardMarkup
+import com.pengrad.telegrambot.model.request.ReplyKeyboardRemove
+import com.pengrad.telegrambot.request.SendMessage
+import me.ruslanys.telegraff.component.telegrambot.TelegrambotForm
+import me.ruslanys.telegraff.core.exception.ValidationException
+import org.springframework.stereotype.Component
+
 enum class PaymentMethod {
     CARD, CASH
 }
 
-handler("/taxi", "такси") {
+@Component
+class TaxiForm(telegramBot: TelegramBot) : TelegrambotForm(listOf("/taxi", "такси"), {
     step<String>("locationFrom") {
-        question {
-            MarkdownMessage("Откуда поедем?")
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Откуда поедем?"))
         }
     }
 
     step<String>("locationTo") {
-        question {
-            MarkdownMessage("Куда поедем?")
+        question { message, state ->
+            telegramBot.execute(SendMessage(state.chatId, "@${message.from().username()} Куда поедем?"))
         }
     }
 
     step<PaymentMethod>("paymentMethod") {
-        question {
-            MarkdownMessage("Оплата картой или наличкой?", "Картой", "Наличкой")
+        question { message, state ->
+            telegramBot.execute(
+                SendMessage(state.chatId, "@${message.from().username()} Оплата картой или наличкой?")
+                    .replyMarkup(
+                        ReplyKeyboardMarkup("картой", "наличкой")
+                            .resizeKeyboard(true)
+                            .selective(true)
+                    )
+            )
         }
 
         validation {
-            when (it.toLowerCase()) {
+            when (it.text()!!.lowercase()) {
                 "картой" -> PaymentMethod.CARD
                 "наличкой" -> PaymentMethod.CASH
                 else -> throw ValidationException("Пожалуйста, выбери один из вариантов")
@@ -112,18 +158,22 @@ handler("/taxi", "такси") {
         }
     }
 
-    process { state, answers ->
-        val from = answers["locationFrom"] as String
-        val to = answers["locationTo"] as String
-        val paymentMethod = answers["paymentMethod"] as PaymentMethod
+    process { message, state ->
+        val from = state.answers["locationFrom"] as String
+        val to = state.answers["locationTo"] as String
+        val paymentMethod = state.answers["paymentMethod"] as PaymentMethod
 
         // Business logic
 
-        MarkdownMessage("Заказ принят. Поедем из $from в $to. Оплата $paymentMethod.")
+        telegramBot.execute(
+            SendMessage(
+                state.chatId,
+                """
+                Заказ принят от пользователя @${message.from().username()}.
+                Поедем из $from в $to. Оплата $paymentMethod.
+                """.trimIndent()
+            ).replyMarkup(ReplyKeyboardRemove())
+        )
     }
-}
+})
 ```
-
-## Устройство
-
-![Обработка сообщений](docs/processing-diagram.png "Обработка сообщений")

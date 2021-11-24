@@ -106,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
             {{#commits}}
                 {{#ifCommitType . type='refactor'}}
-                    - {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
+- {{#eachCommitScope .}} **{{.}}** {{/eachCommitScope}} {{{commitDescription .}}}
 
 [{{hash}}](https://github.com/{{ownerName}}/{{repoName}}/commit/{{hash}}) {{authorName}} *{{commitTime}}*
 

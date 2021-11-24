@@ -11,7 +11,7 @@
 
     <groupId>com.github.xzima</groupId>
     <artifactId>telegraff</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.1-SNAPSHOT</version>
 
     <name>Telegraff</name>
     <description>
@@ -101,6 +101,12 @@
         <hibernate-validator.version>6.0.18.Final</hibernate-validator.version>
         <postgresql.driver.version>42.2.24</postgresql.driver.version>
         <solr.client.version>8.8.1</solr.client.version>
+        <kotest.version>4.6.3</kotest.version>
+        <kotlin.logging.version>2.0.11</kotlin.logging.version>
+        <logback.version>1.2.6</logback.version>
+        <telegram.api.version>5.3.0</telegram.api.version>
+        <springmockk.version>3.0.1</springmockk.version>
+        <mockk.version>1.12.0</mockk.version>
         <!--================================================-->
         <plugin.site.version>3.9.1</plugin.site.version>
         <plugin.resources.version>3.2.0</plugin.resources.version>
@@ -117,6 +123,7 @@
         <pushChanges>false</pushChanges>
         <localCheckout>true</localCheckout>
         <autoVersionSubmodules>true</autoVersionSubmodules>
+        <tagNameFormat>@{project.version}</tagNameFormat>
         <!-- license -->
         <plugin.license.version>4.1</plugin.license.version>
         <license.header>${user.dir}/src/main/license/LICENSE_HEADER.txt</license.header>
@@ -216,6 +223,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${plugin.test.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.surefire</groupId>
+                        <artifactId>surefire-junit-platform</artifactId>
+                        <version>${plugin.test.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <!-- clean -->
             <plugin>
@@ -291,7 +305,7 @@
                 <executions>
                     <execution>
                         <id>check-headers</id>
-                        <phase>verify</phase>
+                        <phase>validate</phase>
                         <goals>
                             <goal>check</goal>
                         </goals>
@@ -400,6 +414,9 @@
                                 <goals>
                                     <goal>git-changelog</goal>
                                 </goals>
+                                <configuration>
+                                    <toRef>2.0.0</toRef>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -424,8 +441,8 @@
                                 </goals>
                                 <configuration>
                                     <file>RELEASE_NOTES.md</file>
-                                    <fromRef>TODO</fromRef>
-                                    <toRef>TODO</toRef>
+                                    <fromRef>v1.0.0</fromRef>
+                                    <toRef>2.0.0</toRef>
                                 </configuration>
                             </execution>
                         </executions>
@@ -461,6 +478,13 @@
                 <version>22.0.0</version>
                 <scope>provided</scope>
             </dependency>
+            <!-- telegram -->
+            <dependency>
+                <!-- https://github.com/pengrad/java-telegram-bot-api -->
+                <groupId>com.github.pengrad</groupId>
+                <artifactId>java-telegram-bot-api</artifactId>
+                <version>${telegram.api.version}</version>
+            </dependency>
             <!-- kotlin -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -488,6 +512,19 @@
                 <artifactId>kotlin-compiler-embeddable</artifactId>
                 <version>${kotlin.version}</version>
             </dependency>
+            <!-- logger -->
+            <dependency>
+                <!-- https://github.com/MicroUtils/kotlin-logging -->
+                <groupId>io.github.microutils</groupId>
+                <artifactId>kotlin-logging-jvm</artifactId>
+                <version>${kotlin.logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <scope>runtime</scope>
+            </dependency>
             <!-- jackson -->
             <dependency>
                 <groupId>com.fasterxml.jackson.module</groupId>
@@ -495,11 +532,29 @@
                 <version>2.13.0</version>
             </dependency>
             <!-- test -->
+            <!-- kotest https://kotest.io/ -->
             <dependency>
-                <groupId>org.jetbrains.kotlin</groupId>
-                <artifactId>kotlin-test</artifactId>
-                <version>${kotlin.version}</version>
+                <groupId>io.kotest</groupId>
+                <artifactId>kotest-runner-junit5-jvm</artifactId>
+                <version>${kotest.version}</version>
                 <scope>test</scope>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.mockk</groupId>
+                        <artifactId>mockk</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- mockk https://mockk.io/ -->
+            <dependency>
+                <groupId>io.mockk</groupId>
+                <artifactId>mockk</artifactId>
+                <version>${mockk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ninja-squad</groupId>
+                <artifactId>springmockk</artifactId>
+                <version>${springmockk.version}</version>
             </dependency>
             <!-- spring -->
             <dependency>
@@ -509,14 +564,16 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
+            <!-- fix dependency conflict -->
+            <dependency>
+                <artifactId>apiguardian-api</artifactId>
+                <groupId>org.apiguardian</groupId>
+                <version>1.1.2</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib-jdk8</artifactId>
